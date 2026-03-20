@@ -2,11 +2,11 @@
 
 ## Overview
 
-**TitanCRM Installer** is an automated deployment script designed to quickly and reliably set up a full TitanCRM environment on a clean server.
+**TitanCRM deployer** is an automated deployment script designed to quickly and reliably set up a full TitanCRM environment on a clean server.
 
 It provisions all required infrastructure, backend services, and supporting tools needed to run TitanCRM in production — with minimal manual configuration.
 
-The installer is built to be:
+The deployer is built to be:
 
 - **Simple** — can be executed with a single command
 - **Automated** — handles infrastructure, services, and configuration
@@ -15,9 +15,9 @@ The installer is built to be:
 
 ---
 
-## What This Installer Does
+## What This Deployer Does
 
-When executed, the installer performs a full deployment of TitanCRM, including:
+When executed, the deployer performs a full deployment of TitanCRM, including:
 
 - Preparing the server environment
 - Installing and configuring Docker (if not already installed)
@@ -53,8 +53,9 @@ No advanced DevOps experience is required to complete the installation, but basi
 Follow these steps to deploy TitanCRM on your server:
 
 ```bash
-chmod +x install.sh
-sudo ./install.sh
+chmod +x deploy.sh
+./deploy.sh
+./deploy.sh <command>
 ```
 
 During the installation, you will be asked to confirm the deployment:
@@ -63,13 +64,13 @@ During the installation, you will be asked to confirm the deployment:
 Type 'deploy' to continue
 ```
 
-Once completed, the installer will output all service URLs and access credentials.
+Once completed, the deployer will output all service URLs and access credentials.
 
 > ⚠️ Note: The full installation may take several minutes depending on your server performance and network speed.
 
 ## System Requirements
 
-Before running the installer, ensure your server meets the following requirements:
+Before running the deployer, ensure your server meets the following requirements:
 
 ### Operating System
 
@@ -77,7 +78,7 @@ Before running the installer, ensure your server meets the following requirement
 
 ### Access
 
-- Root privileges (required to run the installer)
+- Root privileges (required to run the deployer)
 
 ### Hardware
 
@@ -109,11 +110,11 @@ Before running the installer, ensure your server meets the following requirement
 
 ---
 
-> ⚠️ The installer will validate some of these requirements automatically (OS version, disk space), but others must be configured manually.
+> ⚠️ The deployer will validate some of these requirements automatically (OS version, disk space), but others must be configured manually.
 
 ## Environment Configuration (.env)
 
-Before running the installer, you must configure the `.env` file.
+Before running the deployer, you must configure the `.env` file.
 
 This file defines domain names, access credentials, and service endpoints used during deployment.
 
@@ -153,7 +154,7 @@ PGADMIN_LOGIN=admin@example.com
 
 - `PGADMIN_LOGIN` — email used to log into pgAdmin
 
-> ⚠️ Note: The installer may override the password with a generated secure value.
+> ⚠️ Note: The deployer may override the password with a generated secure value in `.env` file.
 
 ---
 
@@ -198,7 +199,7 @@ PGADMIN_PASSWORD=strongpassword123
 
 ## How the Installation Works
 
-The TitanCRM installer performs a fully automated deployment in several stages.
+The TitanCRM deployer performs a fully automated deployment in several stages.
 
 At a high level, the process looks like this:
 
@@ -259,7 +260,7 @@ If Docker is already installed, this step is skipped.
 
 ### 3. Docker Environment Preparation
 
-The installer creates:
+The deployer creates:
 
 - A shared Docker network:
   - `titan-crm-network`
@@ -295,7 +296,6 @@ This includes:
 - RabbitMQ
 - pgAdmin
 - Dozzle
-- Portainer
 
 The script waits for critical services (e.g., RabbitMQ) to become ready.
 
@@ -303,7 +303,7 @@ The script waits for critical services (e.g., RabbitMQ) to become ready.
 
 ### 6. RabbitMQ Configuration
 
-The installer automatically:
+The deployer automatically:
 
 - Creates an **admin user**
 - Creates service users:
@@ -357,7 +357,7 @@ After deployment:
 
 After the installation completes, all core services become available via web interfaces.
 
-The installer will display all URLs and credentials in the console output.
+The deployer will display all URLs and credentials in the console output.
 
 ---
 
@@ -464,7 +464,7 @@ finance → finance
 
 ## Managing TitanCRM
 
-The installer script provides several built-in commands to manage TitanCRM services. Run any command with:
+The deployer script provides several built-in commands to manage TitanCRM services. Run any command with:
 
 ```bash
 sudo ./deploy.sh <command>
@@ -472,7 +472,7 @@ sudo ./deploy.sh <command>
 
 ## Help Command
 
-The `help` command of the installer script displays a list of all available commands with a short description.  
+The `help` command of the deployer script displays a list of all available commands with a short description.  
 It is a **read-only command** and does not modify the system or start any services.
 
 ```bash
@@ -720,7 +720,6 @@ Provides supporting services required for system operation:
 - RabbitMQ (message broker)
 - pgAdmin (database management UI)
 - Dozzle (log viewer)
-- Portainer (container management)
 
 ---
 
@@ -811,7 +810,7 @@ Use system-level backup tools to snapshot the entire server.
 
 ## Security Notes
 
-TitanCRM installer includes several built-in security practices:
+TitanCRM deployer includes several built-in security practices:
 
 ---
 
