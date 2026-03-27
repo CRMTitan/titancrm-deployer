@@ -1,0 +1,135 @@
+x-infra-common: &infra-common
+  restart: always
+  networks:
+    - titan-crm-network
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "3"
+  labels:
+    - dev.dozzle.group=infra
+
+x-postgres: &postgres
+  <<: *infra-common
+  image: postgres:17.6
+
+services:
+
+  company-management-instance:
+    <<: *postgres
+    container_name: company-management-db
+    environment:
+      POSTGRES_USER: company
+      POSTGRES_PASSWORD: company
+      POSTGRES_DB: company-management
+    volumes:
+      - infra-company-management-db:/var/lib/postgresql/data
+
+  content-instance:
+    <<: *postgres
+    container_name: content-db
+    environment:
+      POSTGRES_USER: content
+      POSTGRES_PASSWORD: content
+      POSTGRES_DB: content
+    volumes:
+      - infra-content-db:/var/lib/postgresql/data
+
+  cost-management-instance:
+    <<: *postgres
+    container_name: cost-management-db
+    environment:
+      POSTGRES_USER: cost
+      POSTGRES_PASSWORD: cost
+      POSTGRES_DB: cost-management
+    volumes:
+      - infra-cost-management-db:/var/lib/postgresql/data
+
+  finance-instance:
+    <<: *postgres
+    container_name: finance-db
+    environment:
+      POSTGRES_USER: finance
+      POSTGRES_PASSWORD: finance
+      POSTGRES_DB: finance
+    volumes:
+      - infra-finance-db:/var/lib/postgresql/data
+
+  rabbitmq:
+    <<: *infra-common
+    image: rabbitmq:3.8.2-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    volumes:
+      - infra-rabbitmq:/var/lib/rabbitmq
+    environment:
+      VIRTUAL_HOST: "${RABBITMQ_DOMAIN}"
+      LETSENCRYPT_HOST: "${RABBITMQ_DOMAIN}"
+      VIRTUAL_PORT: 15672
+
+  dozzle:
+    <<: *infra-common
+    image: amir20/dozzle:latest
+    container_name: titancrm-logs
+    hostname: titan-crm-logs
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - infra-dozzle:/data
+    environment:
+      DOZZLE_AUTH_PROVIDER: simple
+      DOZZLE_LOGS_LIMIT: 300
+      DOZZLE_COLOR: auto
+      DOZZLE_LEVEL: info
+      DOZZLE_AUTH_TTL: 12h
+      VIRTUAL_HOST: "${DOZZLE_DOMAIN}"
+      LETSENCRYPT_HOST: "${DOZZLE_DOMAIN}"
+      VIRTUAL_PORT: 8080
+
+  pgadmin:
+    <<: *infra-common
+    image: dpage/pgadmin4:latest
+    container_name: titancrm-db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "${SEED_ADMIN_EMAIL}"
+      PGADMIN_DEFAULT_PASSWORD: ""
+      PGADMIN_LISTEN_PORT: 80
+      VIRTUAL_HOST: "${PGADMIN_DOMAIN}"
+      LETSENCRYPT_HOST: "${PGADMIN_DOMAIN}"
+      VIRTUAL_PORT: 80
+    volumes:
+      - infra-pgadmin:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+
+  portainer:
+    <<: *infra-common
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    command: -H unix:///var/run/docker.sock
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - infra-portainer:/data
+
+volumes:
+  infra-company-management-db:
+    external: true
+  infra-content-db:
+    external: true
+  infra-cost-management-db:
+    external: true
+  infra-finance-db:
+    external: true
+  infra-rabbitmq:
+    external: true
+  infra-dozzle:
+    external: true
+  infra-pgadmin:
+    external: true
+  infra-portainer:
+    external: true
+
+networks:
+  titan-crm-network:
+    external: true

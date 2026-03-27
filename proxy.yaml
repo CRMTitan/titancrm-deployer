@@ -1,0 +1,53 @@
+x-proxy-common: &proxy-common
+  restart: always
+  networks:
+    - titan-crm-network
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+  labels:
+    - dev.dozzle.group=proxy
+
+services:
+
+  nginx-proxy:
+    <<: *proxy-common
+    image: nginxproxy/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - proxy-certs:/etc/nginx/certs
+      - proxy-vhost:/etc/nginx/vhost.d
+      - proxy-html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  nginx-letsencrypt:
+    <<: *proxy-common
+    image: nginxproxy/acme-companion
+    container_name: nginx-letsencrypt
+    environment:
+      NGINX_PROXY_CONTAINER: nginx-proxy
+      DEFAULT_EMAIL: "${SEED_ADMIN_EMAIL}"
+    volumes:
+      - proxy-certs:/etc/nginx/certs
+      - proxy-vhost:/etc/nginx/vhost.d
+      - proxy-html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - nginx-proxy
+
+volumes:
+  proxy-certs:
+    external: true
+  proxy-vhost:
+    external: true
+  proxy-html:
+    external: true
+
+networks:
+  titan-crm-network:
+    external: true

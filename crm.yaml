@@ -1,0 +1,362 @@
+x-common-logging: &common-logging
+  driver: "json-file"
+  options:
+    max-size: "100m"
+    max-file: "3"
+
+x-common-network: &common-network
+  - titan-crm-network
+
+x-common-labels-crm: &common-labels-crm
+  - dev.dozzle.group=crm
+
+x-common-restart: &common-restart
+  restart: always
+
+services:
+
+  frontend:
+    image: ihorcrm/frontend:latest
+    container_name: frontend
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      NEXT_PUBLIC_API_URL: "https://${BACKEND_DOMAIN}/api"
+      NEXT_PUBLIC_APP_URL: "https://${FRONTEND_DOMAIN}/"
+      NEXT_PUBLIC_TELEGRAM_BOT_URL: "https://t.me/${TELEGRAM_BOT_NAME}"
+      NEXT_PUBLIC_S3_PROTOCOL: "https"
+      NEXT_PUBLIC_S3_HOSTNAME: "${AWS_S3_HOSTNAME}"
+      NEXT_PUBLIC_S3_PATHNAME: "/creatives/**"
+      VIRTUAL_HOST: "${FRONTEND_DOMAIN}"
+      LETSENCRYPT_HOST: "${FRONTEND_DOMAIN}"
+      VIRTUAL_PORT: 3000
+    depends_on:
+      - api-gateway
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  finance:
+    image: ihorcrm/finance:latest
+    container_name: finance
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      FINANCE_HOST: "0.0.0.0"
+      FINANCE_PORT: "4200"
+      FINANCE_HTTP_HOST: "0.0.0.0"
+      FINANCE_HTTP_PORT: "8080"
+      FINANCE_DATABASE_URL: "postgresql://finance:finance@finance-db:5432/finance"
+      FINANCE_CLIENT_HOST: "0.0.0.0"
+      FINANCE_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+      KEITARO_CLIENT_HOST: "keitaro"
+      KEITARO_CLIENT_PORT: "4200"
+      GOOGLE_SHEET_ID: "1wkwZvD9sCua7QugSOqsgf7RGBomghvUFXPSyNZ2itS0"
+      GOOGLE_SHEETS_CLIENT_EMAIL: "google-sheets@titan-crm-478116.iam.gserviceaccount.com"
+      GOOGLE_SHEET_RANGE: "A:EA"
+      GOOGLE_SHEETS_PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----
+        MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDRG6b0+9lUVt23GBQ2
+        OhY/6irYXa6ZbSVYCFlO7bgSM8ASwWIYT5Y+UuQFcQteP+7q4gjsgvT70hMjc0ElL+IR78
+        YT5ms2TmwaA8rB1+c6JpL7cxrpC4jh5wvDnNl5QMweyvUgLx7zQAaYl+jInW6A2g2At2KK
+        MXoUO3Kx7IeYv7uwXR0wnZkRaBdoeHRKcFIPihPZ5149qKpiPn0qmRQbRBBehe+0qW9kIDs
+        Ojhb+Wk/NY1GzZEHsrwJ4g+2Xcq4bOlJ0rAmkQilYXsKEDtiAnBdctjR5EeZxwmGTgs6/uJ
+        Xdsf9EcgDjgx4kgBKIKjw5nG2Crr8K8VgKkgDfLpNtAgMBAAECggEAB2+LLd77OsRQcgaJ
+        ZQNcNr2e9GlbEhLy2MgYjcsRWF0+SiVV1acHvVjyHsy/1S7RQ+XVUhHv2RyM0TqQMHk5a6X
+        co75LYiJRGcO4T5hNnUsU+EZGAZaVamMK5LdiBTvIafDKh/6sEmj5Gi8csRkfKQuX9Dcfai
+        MLYH/qAb6TrZPjWcDoBkd2o817cLgNHagxbUWXzD9jbuHe2CY/QOuw9ToIOp4N34FaaI8zM
+        2+ZeRo4joRRZrQsBgXMyTpLkcHX86QOb/vU0TbBr0rURrIjxIIc+JMjHMXMstJvvkaCcs1R
+        Q1O6kSscfSCq4AYcNh4GRIkN1t05I73qwoTsAEfXCQKBgQDzYBeOMKr91dFjWOD39J+1S8v
+        36oOuhjVJUZhb2EzUdpfY3ueEkI4oNtkMgb6maBktv9t6tksLvZXqlCAjwyyPDXyBzaclgX
+        mC4PbOdDgxunbYZGxTnFIR8Sn2LeeXaid9Rqt5iK9Weiaz98sjkRIjT7zZ1Cr0pLRosPSCB
+        8YhKwKBgQDb9IGcLHTo8OCIXgHpgncyfQJRiQAsNVFniCTRBuK1QMulG0g99J06a1/Qi8U1
+        lMyIq2x1n08OWRSJiQvk0nuv3lvFazskd3CS29/1EOpsI/JCaNYt6fQHy486RtIJkNBjGGS
+        2XA4cBPPvQvvMM/+ek5TDqJzWCP5KItja6QzhxwKBgQDbhAi7D9qrKXi7iycff12uQLew3a
+        34dMULZLVv4iEqYe2Eh0l7oIcYbqBHT5+OqMZNJYfpnxMBe/cEpqZ2m0xNm3R5/+yLP8VB73
+        etr9YfxHf9plau84hy9ntKuQzy3aTQsjVoYYkFDxhpq09mvSsG/pzwPRahow22gCWKQ0jKE
+        QKBgQDRZKV2vcPWdmnqqEP9vtwmzmdEo73sWB3VCAC0lW+ByduUpLJTeOmtUcb3S/hEGBHX
+        EgrAtxaVvCwW+sa94bsqI+8NtBWrk6ExzewY6y+gH2Bj5FXxg8VzHlCN1BnkTV502CYYjO5
+        JslVfM09uiRoSJsD6uywDfrBGd4ImdLJ0xQKBgFuIa/Ajt2cBWfvFDUULzKwdqyw49reNKj
+        9G/PhQFoM2eLAE3d73LDdZ/k9W5W1EkQmuovs7Ivfo4clqcFF0Iqf1TJEw48O0222wXBGwN
+        loYAWRSxjn/XraODWv9bguhYEY3HZAWwnbG189infFdpHsdL/Pe86VIL0ibbpD1yt7D
+        -----END PRIVATE KEY-----"
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  api-gateway:
+    image: ihorcrm/api-gateway:latest
+    container_name: api-gateway
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
+      CORS_ORIGINS: "https://${FRONTEND_DOMAIN}"
+      API_GATEWAY_HTTP_HOST: "0.0.0.0"
+      API_GATEWAY_HTTP_PORT: "4200"
+      APP_AUTH_CLIENT_HOST: "app-auth"
+      APP_AUTH_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+      COST_MANAGEMENT_CLIENT_HOST: "cost-management"
+      COST_MANAGEMENT_CLIENT_PORT: "4200"
+      FINANCE_CLIENT_HOST: "finance"
+      FINANCE_CLIENT_PORT: "4200"
+      ANALYTICS_CLIENT_HOST: "analytics"
+      ANALYTICS_CLIENT_PORT: "4200"
+      CONTENT_CLIENT_HOST: "content"
+      CONTENT_CLIENT_PORT: "4200"
+      MAIL_CLIENT_HOST: "mail"
+      MAIL_CLIENT_PORT: "4200"
+      KEITARO_CLIENT_HOST: "keitaro"
+      KEITARO_CLIENT_PORT: "4200"
+      JWT_ACCESS_SECRET: ""
+      JWT_REFRESH_SECRET: ""
+      AWS_S3_REGION: "${AWS_S3_REGION}"
+      AWS_S3_BUCKET: "${AWS_S3_BUCKET}"
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+      VIRTUAL_HOST: "${BACKEND_DOMAIN}"
+      LETSENCRYPT_HOST: "${BACKEND_DOMAIN}"
+      VIRTUAL_PORT: 4200
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  company-management:
+    image: ihorcrm/company-management:latest
+    container_name: company-management
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      COMPANY_MANAGEMENT_HOST: "0.0.0.0"
+      COMPANY_MANAGEMENT_PORT: "4200"
+      COMPANY_MANAGEMENT_HTTP_HOST: "0.0.0.0"
+      COMPANY_MANAGEMENT_HTTP_PORT: "8080"
+      COMPANY_MANAGEMENT_DATABASE_URL: "postgresql://company:company@company-management-db:5432/company-management"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "0.0.0.0"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+      SEED_ADMIN_EMAIL: "${SEED_ADMIN_EMAIL}"
+      SEED_ADMIN_PASSWORD: ""
+      MAIL_CLIENT_HOST: "mail"
+      MAIL_CLIENT_PORT: "4200"
+      FACEBOOK_CLIENT_HOST: "facebook"
+      FACEBOOK_CLIENT_PORT: "4200"
+      FINANCE_CLIENT_HOST: "finance"
+      FINANCE_CLIENT_PORT: "4200"
+      KEITARO_CLIENT_HOST: "keitaro"
+      KEITARO_CLIENT_PORT: "4200"
+      CONTENT_CLIENT_HOST: "content"
+      CONTENT_CLIENT_PORT: "4200"
+      TELEGRAM_BOT_CLIENT_HOST: "telegram-bot"
+      TELEGRAM_BOT_CLIENT_PORT: "4200"
+      RABBIT_QUEUE_URL: "amqp://company-management:company-management@rabbitmq:5672"
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  app-auth:
+    image: ihorcrm/app-auth:latest
+    container_name: app-auth
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
+      APP_AUTH_HOST: "0.0.0.0"
+      APP_AUTH_PORT: "4200"
+      APP_AUTH_HTTP_HOST: "0.0.0.0"
+      APP_AUTH_HTTP_PORT: "8080"
+      APP_AUTH_CLIENT_HOST: "0.0.0.0"
+      APP_AUTH_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+      JWT_ACCESS_SECRET: ""
+      JWT_REFRESH_SECRET: ""
+    depends_on:
+      - api-gateway
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  content:
+    image: ihorcrm/content:latest
+    container_name: content
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      CONTENT_HOST: "0.0.0.0"
+      CONTENT_PORT: "4200"
+      CONTENT_HTTP_HOST: "0.0.0.0"
+      CONTENT_HTTP_PORT: "8080"
+      CONTENT_DATABASE_URL: "postgresql://content:content@content-db:5432/content"
+      CONTENT_CLIENT_HOST: "0.0.0.0"
+      CONTENT_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+      FACEBOOK_CLIENT_HOST: "facebook"
+      FACEBOOK_CLIENT_PORT: "4200"
+      AWS_S3_REGION: "${AWS_S3_REGION}"
+      AWS_S3_BUCKET: "${AWS_S3_BUCKET}"
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+      RABBIT_QUEUE_URL: "amqp://content:content@rabbitmq:5672"
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  cost-management:
+    image: ihorcrm/cost-management:latest
+    container_name: cost-management
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      COST_MANAGEMENT_HOST: "0.0.0.0"
+      COST_MANAGEMENT_PORT: "4200"
+      COST_MANAGEMENT_HTTP_HOST: "0.0.0.0"
+      COST_MANAGEMENT_HTTP_PORT: "8080"
+      COST_MANAGEMENT_DATABASE_URL: "postgresql://cost:cost@cost-management-db:5432/cost-management"
+      COST_MANAGEMENT_CLIENT_HOST: "0.0.0.0"
+      COST_MANAGEMENT_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+      KEITARO_CLIENT_HOST: "keitaro"
+      KEITARO_CLIENT_PORT: "4200"
+      FACEBOOK_CLIENT_HOST: "facebook"
+      FACEBOOK_CLIENT_PORT: "4200"
+      RABBIT_QUEUE_URL: "amqp://cost-management:cost-management@rabbitmq:5672"
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  facebook:
+    image: ihorcrm/facebook:latest
+    container_name: facebook
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      FACEBOOK_HOST: "0.0.0.0"
+      FACEBOOK_PORT: "4200"
+      FACEBOOK_HTTP_HOST: "0.0.0.0"
+      FACEBOOK_HTTP_PORT: "8080"
+      NEXT_PUBLIC_APP_URL: "https://${FRONTEND_DOMAIN}"
+      NEXT_PUBLIC_FACEBOOK_AUTH_PROXY_API_URL: "https://api-facebook-auth-proxy.titan-crm.com"
+      FACEBOOK_CLIENT_HOST: "0.0.0.0"
+      FACEBOOK_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+      TELEGRAM_BOT_CLIENT_HOST: "telegram-bot"
+      TELEGRAM_BOT_CLIENT_PORT: "4200"
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  analytics:
+    image: ihorcrm/analytics:latest
+    container_name: analytics
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      ANALYTICS_HOST: "0.0.0.0"
+      ANALYTICS_PORT: "4200"
+      ANALYTICS_HTTP_HOST: "0.0.0.0"
+      ANALYTICS_HTTP_PORT: "8080"
+      ANALYTICS_CLIENT_HOST: "0.0.0.0"
+      ANALYTICS_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+      KEITARO_CLIENT_HOST: "keitaro"
+      KEITARO_CLIENT_PORT: "4200"
+      CONTENT_CLIENT_HOST: "content"
+      CONTENT_CLIENT_PORT: "4200"
+      FINANCE_CLIENT_HOST: "finance"
+      FINANCE_CLIENT_PORT: "4200"
+      FACEBOOK_CLIENT_HOST: "facebook"
+      FACEBOOK_CLIENT_PORT: "4200"
+    depends_on:
+      - api-gateway
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  scheduler:
+    image: ihorcrm/scheduler:latest
+    container_name: scheduler
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      SCHEDULER_HOST: "0.0.0.0"
+      SCHEDULER_PORT: "4200"
+      SCHEDULER_HTTP_HOST: "0.0.0.0"
+      SCHEDULER_HTTP_PORT: "8080"
+      SCHEDULER_CLIENT_HOST: "0.0.0.0"
+      SCHEDULER_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+      FINANCE_CLIENT_HOST: "finance"
+      FINANCE_CLIENT_PORT: "4200"
+      RABBIT_QUEUE_URL: "amqp://scheduler:scheduler@rabbitmq:5672"
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  telegram-bot:
+    image: ihorcrm/telegram-bot:latest
+    container_name: telegram-bot
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      TELEGRAM_BOT_HOST: "0.0.0.0"
+      TELEGRAM_BOT_PORT: "4200"
+      TELEGRAM_BOT_HTTP_HOST: "0.0.0.0"
+      TELEGRAM_BOT_HTTP_PORT: "8080"
+      TELEGRAM_BOT_CLIENT_HOST: "0.0.0.0"
+      TELEGRAM_BOT_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+      BOT_TOKEN: "${TELEGRAM_BOT_TOKEN}"
+      FRONTEND_URL: "https://${FRONTEND_DOMAIN}"
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  keitaro:
+    image: ihorcrm/keitaro:latest
+    container_name: keitaro
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      KEITARO_HOST: "0.0.0.0"
+      KEITARO_PORT: "4200"
+      KEITARO_HTTP_HOST: "0.0.0.0"
+      KEITARO_HTTP_PORT: "8080"
+      KEITARO_CLIENT_HOST: "0.0.0.0"
+      KEITARO_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+  mail:
+    image: ihorcrm/mail:latest
+    container_name: mail
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      MAIL_HOST: "0.0.0.0"
+      MAIL_PORT: "4200"
+      MAIL_HTTP_HOST: "0.0.0.0"
+      MAIL_HTTP_PORT: "8080"
+      BREVO_USER: "${BREVO_USER}"
+      BREVO_API_KEY: "${BREVO_API_KEY}"
+      CLIENT_BASE_URL: "https://${FRONTEND_DOMAIN}"
+      MAIL_CLIENT_HOST: "0.0.0.0"
+      MAIL_CLIENT_PORT: "4200"
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
+networks:
+  titan-crm-network:
+    external: true
