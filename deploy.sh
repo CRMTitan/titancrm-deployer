@@ -220,14 +220,14 @@ generate_secrets() {
   DOZZLE_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
 
   # JWT
-  JWT_ACCESS_SECRET=$(openssl rand -base64 96 | tr -dc 'A-Za-z0-9' | head -c 128)
-  JWT_REFRESH_SECRET=$(openssl rand -base64 96 | tr -dc 'A-Za-z0-9' | head -c 128)
-  # sed -i "s|^JWT_ACCESS_SECRET=.*|JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET|" .env
-  # sed -i "s|^JWT_REFRESH_SECRET=.*|JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET|" .env
+  JWT_ACCESS_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 128)
+  JWT_REFRESH_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 128)
+  safe_access=$(printf '%s\n' "$JWT_ACCESS_SECRET" | sed 's/[&/\\"]/\\&/g')
+  safe_refresh=$(printf '%s\n' "$JWT_REFRESH_SECRET" | sed 's/[&/\\"]/\\&/g')
   sleep 2
-  sed -i "s|JWT_ACCESS_SECRET:.*|JWT_ACCESS_SECRET: \"$JWT_ACCESS_SECRET\"|g" crm.yaml
+  sed -i "s|^\([[:space:]]*\)JWT_ACCESS_SECRET:.*|\1JWT_ACCESS_SECRET: \"$safe_access\"|" crm.yaml
   sleep 2
-  sed -i "s|JWT_REFRESH_SECRET:.*|JWT_REFRESH_SECRET: \"$JWT_REFRESH_SECRET\"|g" crm.yaml
+  sed -i "s|^\([[:space:]]*\)JWT_REFRESH_SECRET:.*|\1JWT_REFRESH_SECRET: \"$safe_refresh\"|" crm.yaml
   sleep 2
 
   # CRM admin password
@@ -237,7 +237,6 @@ generate_secrets() {
   special=$(tr -dc '!@#$%^&*' </dev/urandom | head -c 1)
   rest=$(tr -dc 'A-Za-z0-9!@#$%^&*' </dev/urandom | head -c 12)
   SEED_ADMIN_PASSWORD=$(echo "$upper$lower$digit$special$rest" | fold -w1 | shuf | tr -d '\n')
-  # sed -i "s|^SEED_ADMIN_PASSWORD=.*|SEED_ADMIN_PASSWORD=$SEED_ADMIN_PASSWORD|" .env
   sleep 2
   safe_password=$(printf '%s\n' "$SEED_ADMIN_PASSWORD" | sed 's/[&/\\"]/\\&/g')
   sed -i "s|^\([[:space:]]*\)SEED_ADMIN_PASSWORD:.*|\1SEED_ADMIN_PASSWORD: \"$safe_password\"|" crm.yaml
