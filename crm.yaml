@@ -14,7 +14,6 @@ x-common-restart: &common-restart
   restart: always
 
 services:
-
   frontend:
     image: ihorcrm/frontend:latest
     container_name: frontend
@@ -23,6 +22,7 @@ services:
       COMMIT_SHORT_SHA: "n/a"
       NEXT_PUBLIC_API_URL: "https://${BACKEND_DOMAIN}/api"
       NEXT_PUBLIC_APP_URL: "https://${FRONTEND_DOMAIN}/"
+      NEXT_PUBLIC_FACEBOOK_AUTH_PROXY_API_URL: "https://api-facebook-auth-proxy.titan-crm.com"
       NEXT_PUBLIC_TELEGRAM_BOT_URL: "https://t.me/${TELEGRAM_BOT_NAME}"
       NEXT_PUBLIC_S3_PROTOCOL: "https"
       NEXT_PUBLIC_S3_HOSTNAME: "${AWS_S3_HOSTNAME}"
@@ -239,8 +239,6 @@ services:
       FACEBOOK_PORT: "4200"
       FACEBOOK_HTTP_HOST: "0.0.0.0"
       FACEBOOK_HTTP_PORT: "8080"
-      NEXT_PUBLIC_APP_URL: "https://${FRONTEND_DOMAIN}"
-      NEXT_PUBLIC_FACEBOOK_AUTH_PROXY_API_URL: "https://api-facebook-auth-proxy.titan-crm.com"
       FACEBOOK_CLIENT_HOST: "0.0.0.0"
       FACEBOOK_CLIENT_PORT: "4200"
       COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
