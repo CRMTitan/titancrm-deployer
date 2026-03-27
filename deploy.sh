@@ -622,7 +622,7 @@ save_credentials() {
 Access URLs:
 
 Frontend:         https://${FRONTEND_DOMAIN}
-login: ${SEED_ADMIN_EMAIL}${RESET} | password: ${SEED_ADMIN_PASSWORD}
+login: ${SEED_ADMIN_EMAIL} | password: ${SEED_ADMIN_PASSWORD}
 
 Backend API:      https://${BACKEND_DOMAIN}
 
