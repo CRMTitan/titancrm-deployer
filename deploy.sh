@@ -240,7 +240,7 @@ generate_secrets() {
   # sed -i "s|^SEED_ADMIN_PASSWORD=.*|SEED_ADMIN_PASSWORD=$SEED_ADMIN_PASSWORD|" .env
   sleep 2
   safe_password=$(printf '%s\n' "$SEED_ADMIN_PASSWORD" | sed 's/[&/\\"]/\\&/g')
-  sed -i "s|^[[:space:]]*SEED_ADMIN_PASSWORD:.*|SEED_ADMIN_PASSWORD: \"$safe_password\"|" crm.yaml
+  sed -i "s|^\([[:space:]]*\)SEED_ADMIN_PASSWORD:.*|\1SEED_ADMIN_PASSWORD: \"$safe_password\"|" crm.yaml
 
   info "Secrets generated"
 
