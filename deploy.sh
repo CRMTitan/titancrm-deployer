@@ -212,8 +212,9 @@ generate_secrets() {
   # PGAdmin
   PGADMIN_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
   # sed -i "s/^PGADMIN_PASSWORD=.*/PGADMIN_PASSWORD=$PGADMIN_PASSWORD/" .env
+  sleep 2
   sed -i "s|PGADMIN_DEFAULT_PASSWORD:.*|PGADMIN_DEFAULT_PASSWORD: \"$PGADMIN_PASSWORD\"|g" infra.yaml
-  sleep 1
+  sleep 2
 
   # Dozzle
   DOZZLE_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
@@ -223,10 +224,11 @@ generate_secrets() {
   JWT_REFRESH_SECRET=$(openssl rand -base64 96 | tr -dc 'A-Za-z0-9' | head -c 128)
   # sed -i "s|^JWT_ACCESS_SECRET=.*|JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET|" .env
   # sed -i "s|^JWT_REFRESH_SECRET=.*|JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET|" .env
+  sleep 2
   sed -i "s|JWT_ACCESS_SECRET:.*|JWT_ACCESS_SECRET: \"$JWT_ACCESS_SECRET\"|g" crm.yaml
-  sleep 1
+  sleep 2
   sed -i "s|JWT_REFRESH_SECRET:.*|JWT_REFRESH_SECRET: \"$JWT_REFRESH_SECRET\"|g" crm.yaml
-  sleep 1
+  sleep 2
 
   # CRM admin password
   upper=$(tr -dc 'A-Z' </dev/urandom | head -c 1)
@@ -236,6 +238,7 @@ generate_secrets() {
   rest=$(tr -dc 'A-Za-z0-9!@#$%^&*' </dev/urandom | head -c 12)
   SEED_ADMIN_PASSWORD=$(echo "$upper$lower$digit$special$rest" | fold -w1 | shuf | tr -d '\n')
   # sed -i "s|^SEED_ADMIN_PASSWORD=.*|SEED_ADMIN_PASSWORD=$SEED_ADMIN_PASSWORD|" .env
+  sleep 2
   sed -i "s|SEED_ADMIN_PASSWORD:.*|SEED_ADMIN_PASSWORD: \"$SEED_ADMIN_PASSWORD\"|g" crm.yaml
 
   info "Secrets generated"
