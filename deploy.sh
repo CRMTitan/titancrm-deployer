@@ -621,18 +621,19 @@ save_credentials() {
   cat <<EOF > "$CREDENTIALS_FILE"
 Access URLs:
 
-Frontend:         https://${FRONTEND_ENDPOINT}
+Frontend:         https://${FRONTEND_DOMAIN}
+login: ${SEED_ADMIN_EMAIL}${RESET} | password: ${SEED_ADMIN_PASSWORD}
 
-Backend API:      https://${BACKEND_ENDPOINT}
+Backend API:      https://${BACKEND_DOMAIN}
 
-RabbitMQ Console: https://${RABBITMQ_ENDPOINT}
+RabbitMQ Console: https://${RABBITMQ_DOMAIN}
 login: admin | password: ${RABBITMQ_ADMIN_PASSWORD}
 
-Log Console:      https://${DOZZLE_ENDPOINT}
+Log Console:      https://${DOZZLE_DOMAIN}
 login: admin | password: ${DOZZLE_PASSWORD}
 
-Database Console: https://${PGADMIN_ENDPOINT}
-login: ${PGADMIN_LOGIN} | password: ${PGADMIN_PASSWORD}
+Database Console: https://${PGADMIN_DOMAIN}
+login: ${SEED_ADMIN_EMAIL} | password: ${PGADMIN_PASSWORD}
 
 Database credentials:
 - company-management: company
