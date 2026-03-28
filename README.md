@@ -139,9 +139,9 @@ Credentials are generated automatically and saved in `credentials.txt`.
 | ------------ | -------------------------------- |
 | help         | Show available commands          |
 | crm-upgrade  | Update CRM services              |
-| crm-redeploy | Recreate CRM containers          |
-| crm-stop     | Stop CRM                         |
-| crm-start    | Start CRM                        |
+| crm-redeploy | Recreate CRM services            |
+| crm-stop     | Stop CRM services                |
+| crm-start    | Start CRM services               |
 | uninstall    | Remove everything (⚠️ data loss) |
 
 ---
