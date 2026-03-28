@@ -64,6 +64,8 @@ After completion, all service URLs and credentials will be displayed.
 - Minimum: 120 GB disk
 - Recommended: 4 CPU / 8 GB RAM
 
+> ⚠️ **Disk space notice:** We recommend keeping sufficient free disk space beyond the minimum. Updates of microservices and general CRM operation require extra space to ensure smooth deployment and proper functioning of all services.
+
 ### Network
 
 - Public IP address
@@ -194,7 +196,7 @@ docker ps
 
 Common issues:
 
-- Incorrect or incomplete [.env)](https://github.com/CRMTitan/titancrm-deployer#configuration-env) configuration — make sure all required variables are set and valid
+- Incorrect or incomplete [.env](https://github.com/CRMTitan/titancrm-deployer#configuration-env) configuration — make sure all required variables are set and valid
 - Domains not pointing to server
 - Ports 80/443 closed
 - Services still starting
