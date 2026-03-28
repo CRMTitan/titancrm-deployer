@@ -15,6 +15,9 @@ It automatically:
 
 ## Quick Start
 
+> ⚠️ **Compatibility:** The deployer is designed for **Ubuntu Server 24.04 LTS**.  
+> Full support and stable operation are guaranteed only on this version.
+
 Clone the TitanCRM deployer repository:
 
 ```bash
