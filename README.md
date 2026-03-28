@@ -15,6 +15,13 @@ It automatically:
 
 ## Quick Start
 
+Clone the TitanCRM deployer repository:
+
+```bash
+cd ~
+git clone https://github.com/CRMTitan/titancrm-deployer.git
+```
+
 Prepare your environment file
 Copy the example `.env` to create your own configuration:
 
