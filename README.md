@@ -22,10 +22,10 @@ cd ~
 git clone https://github.com/CRMTitan/titancrm-deployer.git
 ```
 
-Prepare your environment file
 Copy the example `.env` to create your own configuration:
 
 ```bash
+cd titancrm-deployer
 cp .env.example .env
 ```
 Then, visit the [Configuration (.env) section](https://github.com/CRMTitan/titancrm-deployer#configuration-env) to start setting up your environment.
