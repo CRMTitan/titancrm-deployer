@@ -23,6 +23,8 @@ git clone https://github.com/CRMTitan/titancrm-deployer.git
 ```
 
 Copy the example `.env` to create your own configuration:
+> ⚠️ **Important:** You must configure the `.env` file before running the deployer.  
+> The deployment will not work correctly without proper configuration.
 
 ```bash
 cd titancrm-deployer
@@ -84,9 +86,6 @@ Point domains to your server:
 ---
 
 ## Configuration (.env)
-
-> ⚠️ **Important:** You must configure the `.env` file before running the deployer.  
-> The deployment will not work correctly without proper configuration.
 
 Set yout valid email for CRM login:
 
