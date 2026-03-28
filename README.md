@@ -7,9 +7,9 @@ TitanCRM Deployer is a one-command script that installs a full production-ready 
 It automatically:
 
 - prepares the server environment
+- generates secure credentials
 - deploys infrastructure and services
 - configures HTTPS and routing
-- generates secure credentials
 
 ---
 
