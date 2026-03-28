@@ -30,7 +30,7 @@ Copy the example `.env` to create your own configuration:
 cd titancrm-deployer
 cp .env.example .env
 ```
-Then, visit the [Configuration (.env) section](https://github.com/CRMTitan/titancrm-deployer#configuration-env) to start setting up your environment.
+Then, visit the [Configuration (.env) **guide**](https://github.com/CRMTitan/titancrm-deployer#configuration-env) to start setting up your environment.
 
 You can view all supported deployer commands by running:
 
