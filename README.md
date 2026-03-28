@@ -64,20 +64,20 @@ Point domains to your server:
 > ⚠️ **Important:** You must configure the `.env` file before running the deployer.  
 > The deployment will not work correctly without proper configuration.
 
+Set yout valid email for CRM login:
+
+```bash
+SEED_ADMIN_EMAIL=email@yourdomain.ltd
+```
+
 Set your domains:
 
 ```bash
-FRONTEND_DOMAIN=app.example.com
-BACKEND_DOMAIN=api.example.com
-RABBITMQ_DOMAIN=rabbit.example.com
-PGADMIN_DOMAIN=pgadmin.example.com
-DOZZLE_DOMAIN=logs.example.com
-```
-
-pgAdmin login:
-
-```bash
-PGADMIN_LOGIN=admin@example.com
+FRONTEND_DOMAIN=yourdomain.ltd
+BACKEND_DOMAIN=api.yourdomain.ltd
+RABBITMQ_DOMAIN=rabbit.yourdomain.ltd
+PGADMIN_DOMAIN=pgadmin.yourdomain.ltd
+DOZZLE_DOMAIN=logs.yourdomain.ltd
 ```
 
 ### External services required

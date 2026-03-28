@@ -66,6 +66,36 @@ confirm_deploy() {
 }
 
 # ===============================
+# Integrity check
+# ===============================
+integrity_check() {
+
+  info "Verifying integrity..."
+
+  REQUIRED_FILES=(
+    ".env"
+    "infra.yaml"
+    "crm.yaml"
+    "proxy.yaml"
+  )
+
+  MISSING=()
+
+  for FILE in "${REQUIRED_FILES[@]}"; do
+    if [[ ! -f "$FILE" ]]; then
+      MISSING+=("$FILE")
+    fi
+  done
+
+  if [[ ${#MISSING[@]} -ne 0 ]]; then
+    error "❌ Missing required files: ${MISSING[*]}
+    "
+  fi
+
+  info "Integrity check passed"
+}
+
+# ===============================
 # Check root
 # ===============================
 if [[ "$EUID" -ne 0 ]]; then
@@ -211,7 +241,6 @@ generate_secrets() {
 
   # PGAdmin
   PGADMIN_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
-  # sed -i "s/^PGADMIN_PASSWORD=.*/PGADMIN_PASSWORD=$PGADMIN_PASSWORD/" .env
   sleep 2
   sed -i "s|PGADMIN_DEFAULT_PASSWORD:.*|PGADMIN_DEFAULT_PASSWORD: \"$PGADMIN_PASSWORD\"|g" infra.yaml
   sleep 2
@@ -237,8 +266,8 @@ generate_secrets() {
   special=$(tr -dc '!@#$%^&*' </dev/urandom | head -c 1)
   rest=$(tr -dc 'A-Za-z0-9!@#$%^&*' </dev/urandom | head -c 12)
   SEED_ADMIN_PASSWORD=$(echo "$upper$lower$digit$special$rest" | fold -w1 | shuf | tr -d '\n')
-  sleep 2
   safe_password=$(printf '%s\n' "$SEED_ADMIN_PASSWORD" | sed 's/[&/\\"]/\\&/g')
+  sleep 2
   sed -i "s|^\([[:space:]]*\)SEED_ADMIN_PASSWORD:.*|\1SEED_ADMIN_PASSWORD: \"$safe_password\"|" crm.yaml
 
   info "Secrets generated"
@@ -651,6 +680,22 @@ EOF
 # CLI commands
 # ===============================
 
+# ===============================
+# Unknown command handler
+# ===============================
+if [[ -n "$1" ]]; then
+  case "$1" in
+    crm-upgrade|crm-redeploy|crm-stop|crm-start|uninstall|help)
+      ;;
+    *)
+      error "❌ Unknown command: $1
+      
+      Run './deploy.sh help' to see available commands.
+      "
+      ;;
+  esac
+fi
+
 # -------------------------------
 # CRM upgrade
 # -------------------------------
@@ -836,6 +881,7 @@ if [[ -z "$1" ]]; then
   confirm_deploy
 fi
 
+integrity_check
 check_os
 check_disk
 install_docker
