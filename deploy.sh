@@ -2,9 +2,7 @@
 
 set -e
 
-# ===============================
-# Init (clear screen)
-# ===============================
+# =====[ INIT: Clear screen ]=====
 if [[ -t 1 ]]; then
   printf "\033c"
   echo -e "\e[92m🚀 TitanCRM Deployment Tool\e[0m"
@@ -12,9 +10,7 @@ if [[ -t 1 ]]; then
   echo
 fi
 
-# ===============================
-# Colors
-# ===============================
+# =====[ COLORS ]=====
 GREEN="\e[32m"
 RED="\e[31m"
 YELLOW="\e[33m"
@@ -23,14 +19,10 @@ BRIGHT_BLUE="\e[94m"
 BRIGHT_GREEN="\e[92m"
 RESET="\e[0m"
 
-# ===============================
-# Output file for credentials
-# ===============================
+# =====[ OUTPUT: Credentials file ]=====
 CREDENTIALS_FILE="credentials.txt"
 
-# ===============================
-# Helper functions
-# ===============================
+# =====[ HELPERS ]=====
 info() {
   echo -e "${GREEN}[INFO]${RESET} $1"
 }
@@ -44,9 +36,7 @@ error() {
   exit 1
 }
 
-# ===============================
-# Deployment confirmation
-# ===============================
+# =====[ CONFIRMATION: Deployment ]=====
 confirm_deploy() {
 
   echo
@@ -65,9 +55,7 @@ confirm_deploy() {
   echo
 }
 
-# ===============================
-# Integrity check
-# ===============================
+# =====[ CHECK: Integrity ]=====
 integrity_check() {
 
   info "Verifying integrity..."
@@ -95,16 +83,12 @@ integrity_check() {
   info "Integrity check passed"
 }
 
-# ===============================
-# Check root
-# ===============================
+# =====[ CHECK: Root privileges ]=====
 if [[ "$EUID" -ne 0 ]]; then
   error "This script must be run as root"
 fi
 
-# ===============================
-# Check OS version
-# ===============================
+# =====[ CHECK: OS version ]=====
 check_os() {
 
   info "Checking operating system..."
@@ -116,9 +100,7 @@ check_os() {
   info "Ubuntu 24.04 detected"
 }
 
-# ===============================
-# Check free disk space
-# ===============================
+# =====[ CHECK: Disk space ]=====
 check_disk() {
 
   info "Checking available disk space..."
@@ -132,9 +114,7 @@ check_disk() {
   info "Disk space OK (${FREE_SPACE}GB available)"
 }
 
-# ===============================
-# Install Docker if needed
-# ===============================
+# =====[ SETUP: Docker installation ]=====
 install_docker() {
 
   if command -v docker &> /dev/null; then
@@ -176,9 +156,7 @@ install_docker() {
   info "Docker installed successfully"
 }
 
-# ===============================
-# Create shared docker network
-# ===============================
+# =====[ SETUP: Docker network ]=====
 create_network() {
 
   NETWORK="titan-crm-network"
@@ -197,9 +175,7 @@ create_network() {
   fi
 }
 
-# ===============================
-# Create docker volumes
-# ===============================
+# =====[ SETUP: Docker volumes ]=====
 create_volumes() {
 
   info "Checking required docker volumes..."
@@ -229,9 +205,7 @@ create_volumes() {
   done
 }
 
-# ===============================
-# Generate secrets
-# ===============================
+# =====[ SECRETS: Generation ]=====
 generate_secrets() {
 
   info "Generating secrets..."
@@ -274,9 +248,7 @@ generate_secrets() {
 
 }
 
-# ===============================
-# Setup Dozzle authentication
-# ===============================
+# =====[ SETUP: Dozzle authentication ]=====
 configure_dozzle() {
 
   info "Setting up Dozzle authentication..."
@@ -307,9 +279,7 @@ EOF
 
 }
 
-# ===============================
-# Setup proxy config
-# ===============================
+# =====[ SETUP: Proxy configuration ]=====
 configure_proxy() {
 
   info "Setting up proxy configuration..."
@@ -327,9 +297,7 @@ EOF
   info "Proxy configuration created in volume"
 }
 
-# ===============================
-# Setup pgAdmin preconfigured servers
-# ===============================
+# =====[ SETUP: pgAdmin configuration ]=====
 configure_pgadmin() {
 
   info "Setting up pgAdmin servers configuration..."
@@ -390,9 +358,7 @@ EOF
 
 }
 
-# ===============================
-# Deploy Infra stack
-# ===============================
+# =====[ DEPLOY: Infra stack ]=====
 deploy_infra() {
 
   info "Deploying infra docker stack..."
@@ -421,9 +387,7 @@ deploy_infra() {
   info "Infra stack successfully deployed"
 }
 
-# ===============================
-# Wait for RabbitMQ readiness
-# ===============================
+# =====[ WAIT: RabbitMQ readiness ]=====
 wait_rabbitmq() {
 
   info "Waiting for RabbitMQ container..."
@@ -451,9 +415,7 @@ wait_rabbitmq() {
 
 }
 
-# ===============================
-# Configure RabbitMQ
-# ===============================
+# =====[ CONFIGURE: RabbitMQ ]=====
 configure_rabbitmq() {
 
   info "Configuring RabbitMQ users and permissions..."
@@ -463,7 +425,6 @@ configure_rabbitmq() {
   # -------------------------------
   # Create admin user
   # -------------------------------
-
   docker exec $RABBIT_CONTAINER rabbitmqctl list_users | grep -q "^admin" || \
   docker exec $RABBIT_CONTAINER rabbitmqctl add_user admin "$RABBITMQ_ADMIN_PASSWORD"
 
@@ -472,7 +433,6 @@ configure_rabbitmq() {
   # -------------------------------
   # Create service users
   # -------------------------------
-
   USERS=(
     cost-management
     scheduler
@@ -494,7 +454,6 @@ configure_rabbitmq() {
   # -------------------------------
   # Set permissions
   # -------------------------------
-
   PERMISSION_USERS=(
     admin
     cost-management
@@ -513,9 +472,7 @@ configure_rabbitmq() {
 
 }
 
-# ===============================
-# Deploy CRM stack
-# ===============================
+# =====[ DEPLOY: CRM stack ]=====
 deploy_crm() {
 
   info "Deploying CRM docker stack..."
@@ -544,9 +501,7 @@ deploy_crm() {
   info "CRM stack successfully deployed"
 }
 
-# ===============================
-# Wait for all CRM containers to be running
-# ===============================
+# =====[ WAIT: CRM containers ]=====
 wait_crm_containers() {
   CONTAINERS=(
     "analytics"
@@ -594,9 +549,7 @@ wait_crm_containers() {
   done
 }
 
-# ===============================
-# Deploy Proxy stack
-# ===============================
+# =====[ DEPLOY: Proxy stack ]=====
 deploy_proxy() {
 
   info "Deploying proxy docker stack..."
@@ -625,9 +578,7 @@ deploy_proxy() {
   info "Proxy stack successfully deployed"
 }
 
-# ===============================
-# Load .env file
-# ===============================
+# =====[ LOAD: Environment variables ]=====
 load_env() {
   ENV_FILE=".env"
 
@@ -643,9 +594,7 @@ load_env() {
   set +o allexport
 }
 
-# ===============================
-# Generate output creds
-# ===============================
+# =====[ OUTPUT: Save credentials ]=====
 save_credentials() {
   cat <<EOF > "$CREDENTIALS_FILE"
 Access URLs:
@@ -676,13 +625,11 @@ EOF
   info "Credentials saved to $CREDENTIALS_FILE"
 }
 
-# ===============================
-# CLI commands
-# ===============================
+# =====[ CLI: Commands ]=====
 
-# ===============================
+# -------------------------------
 # Unknown command handler
-# ===============================
+# -------------------------------
 if [[ -n "$1" ]]; then
   case "$1" in
     crm-upgrade|crm-redeploy|crm-stop|crm-start|uninstall|help)
@@ -872,10 +819,7 @@ if [[ "$1" == "help" ]]; then
   exit 0
 fi
 
-# ===============================
-# Main
-# ===============================
-
+# =====[ MAIN ]=====
 if [[ -z "$1" ]]; then
   info "🚀 Starting TitanCRM deployment..."
   confirm_deploy
