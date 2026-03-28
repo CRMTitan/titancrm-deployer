@@ -15,6 +15,16 @@ It automatically:
 
 ## Quick Start
 
+Prepare your environment file
+Copy the example `.env` to create your own configuration:
+
+```bash
+cp .env.example .env
+```
+Then, visit the [Configuration (.env) section](https://github.com/CRMTitan/titancrm-deployer#configuration-env) to start setting up your environment.
+
+Make the deploy script executable and run it:
+
 ```bash
 chmod +x deploy.sh
 ./deploy.sh
