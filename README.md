@@ -108,7 +108,7 @@ DOZZLE_DOMAIN=logs.yourdomain.ltd
 - Telegram Bot
 - S3 storage
 
-> ⚠️ **Detailed setup:** https://docs.google.com/document/d/1npkPQs9O_Bshj4giDei89BFjfmimeCCjBLWwhh76zYg
+> ⚠️ **Detailed setup:** [Google Docs](https://docs.google.com/document/d/1npkPQs9O_Bshj4giDei89BFjfmimeCCjBLWwhh76zYg)
 
 ---
 
@@ -172,6 +172,16 @@ Credentials are generated automatically and saved in `credentials.txt`.
 
 Check logs:
 
+Open your log service:
+
+```bash
+https://DOZZLE_DOMAIN
+```
+
+or
+
+Use docker:
+
 ```bash
 docker logs <container_name>
 ```
@@ -184,6 +194,7 @@ docker ps
 
 Common issues:
 
+- Incorrect or incomplete [.env)](https://github.com/CRMTitan/titancrm-deployer#configuration-env) configuration — make sure all required variables are set and valid
 - Domains not pointing to server
 - Ports 80/443 closed
 - Services still starting
