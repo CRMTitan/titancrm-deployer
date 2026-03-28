@@ -30,10 +30,15 @@ cp .env.example .env
 ```
 Then, visit the [Configuration (.env) section](https://github.com/CRMTitan/titancrm-deployer#configuration-env) to start setting up your environment.
 
-Make the deploy script executable and run it:
+You can view all supported deployer commands by running:
 
 ```bash
-chmod +x deploy.sh
+./deploy.sh help
+```
+
+Run the deploy:
+
+```bash
 ./deploy.sh
 ```
 
