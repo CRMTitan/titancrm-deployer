@@ -26,6 +26,7 @@ git clone https://github.com/CRMTitan/titancrm-deployer.git
 ```
 
 Copy the example `.env` to create your own configuration:
+
 > ⚠️ **Important:** You must configure the `.env` file before running the deployer.  
 > The deployment will not work correctly without proper configuration.
 
@@ -33,6 +34,7 @@ Copy the example `.env` to create your own configuration:
 cd titancrm-deployer
 cp .env.example .env
 ```
+
 Then, visit the [**Configuration (.env) guide**](https://github.com/CRMTitan/titancrm-deployer#configuration-env) to start setting up your environment.
 
 Make the script executable:
@@ -111,6 +113,10 @@ RABBITMQ_DOMAIN=rabbit.yourdomain.ltd
 PGADMIN_DOMAIN=pgadmin.yourdomain.ltd
 DOZZLE_DOMAIN=logs.yourdomain.ltd
 ```
+
+### Facebook Auth Proxy
+
+> ⚠️ You must provide your frontend domain (e.g. `yourdomain.ltd`) to the TitanCRM team to enable Facebook authentication. Please note that configuration may take some time. Without this, Facebook authentication will not work correctly.
 
 ### External services required
 
