@@ -210,19 +210,19 @@ generate_secrets() {
 
   info "Generating secrets..."
 
-  # RabbitMQ
+  # Infra RabbitMQ admin password
   RABBITMQ_ADMIN_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
 
-  # PGAdmin
+  # Infra PGAdmin admin password
   PGADMIN_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
   sleep 2
   sed -i "s|PGADMIN_DEFAULT_PASSWORD:.*|PGADMIN_DEFAULT_PASSWORD: \"$PGADMIN_PASSWORD\"|g" infra.yaml
   sleep 2
 
-  # Dozzle
+  # Infra Dozzle admin password
   DOZZLE_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
 
-  # JWT
+  # CRM JWT tokens
   JWT_ACCESS_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 128)
   JWT_REFRESH_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 128)
   safe_access=$(printf '%s\n' "$JWT_ACCESS_SECRET" | sed 's/[&/\\"]/\\&/g')
@@ -232,6 +232,11 @@ generate_secrets() {
   sleep 2
   sed -i "s|^\([[:space:]]*\)JWT_REFRESH_SECRET:.*|\1JWT_REFRESH_SECRET: \"$safe_refresh\"|" crm.yaml
   sleep 2
+
+  # CRM DB encryption key
+  ENCRYPTION_KEY=$(openssl rand -hex 32)
+  sleep 2
+  sed -i "s|^\([[:space:]]*\)ENCRYPTION_KEY:.*|\1ENCRYPTION_KEY: \"$ENCRYPTION_KEY\"|" crm.yaml
 
   # CRM admin password
   upper=$(tr -dc 'A-Z' </dev/urandom | head -c 1)
