@@ -101,17 +101,6 @@ services:
       - infra-pgadmin:/var/lib/pgadmin
       - ./pgadmin/servers.json:/pgadmin4/servers.json
 
-  portainer:
-    <<: *infra-common
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    command: -H unix:///var/run/docker.sock
-    ports:
-      - "9000:9000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - infra-portainer:/data
-
 volumes:
   infra-company-management-db:
     external: true
@@ -126,8 +115,6 @@ volumes:
   infra-dozzle:
     external: true
   infra-pgadmin:
-    external: true
-  infra-portainer:
     external: true
 
 networks:
