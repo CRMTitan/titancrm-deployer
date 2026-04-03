@@ -227,7 +227,7 @@ generate_secrets() {
   sed -i "s|^\([[:space:]]*\)JWT_ACCESS_SECRET:.*|\1JWT_ACCESS_SECRET: \"$safe_access\"|" crm.yaml
   sed -i "s|^\([[:space:]]*\)JWT_REFRESH_SECRET:.*|\1JWT_REFRESH_SECRET: \"$safe_refresh\"|" crm.yaml
 
-  # CRM DB encryption key
+  # CRM encryption key
   ENCRYPTION_KEY=$(openssl rand -hex 32)
   sed -i "s|^\([[:space:]]*\)ENCRYPTION_KEY:.*|\1ENCRYPTION_KEY: \"$ENCRYPTION_KEY\"|" crm.yaml
 
@@ -616,7 +616,7 @@ Database credentials:
 - cost-management: cost
 - finance: finance
 
-Company Management key: ${ENCRYPTION_KEY}
+Encryption Key: ${ENCRYPTION_KEY}
 
 EOF
 
@@ -925,7 +925,7 @@ echo -e "content:                  ${BRIGHT_BLUE}content${RESET}"
 echo -e "cost-management:          ${BRIGHT_BLUE}cost${RESET}"
 echo -e "finance:                  ${BRIGHT_BLUE}finance${RESET}"
 echo
-info "Company Management key: ${ENCRYPTION_KEY}"
+info "Encryption Key: ${ENCRYPTION_KEY}"
 echo
 info "Please wait a few minutes if services are not immediately reachable."
 echo
