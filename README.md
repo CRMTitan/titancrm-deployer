@@ -167,14 +167,16 @@ Credentials are generated automatically and saved in `credentials.txt`.
 ./deploy.sh <command>
 ```
 
-| Command      | Description                      |
-| ------------ | -------------------------------- |
-| help         | Show available commands          |
-| crm-upgrade  | Update CRM services              |
-| crm-redeploy | Recreate CRM services            |
-| crm-stop     | Stop CRM services                |
-| crm-start    | Start CRM services               |
-| uninstall    | Remove everything (⚠️ data loss) |
+| Command        | Description                                 |
+| -------------- | ------------------------------------------- |
+| help           | Show available commands                     |
+| crm-upgrade    | Update CRM services                         |
+| crm-redeploy   | Recreate CRM services                       |
+| crm-stop       | Stop CRM services                           |
+| crm-start      | Start CRM services                          |
+| crm-tag-get    | Show current CRM image tag                  |
+| crm-tag-set    | Set new CRM image tag (requires redeploy)   |
+| uninstall      | Remove everything (⚠️ data loss)            |
 
 ---
 
