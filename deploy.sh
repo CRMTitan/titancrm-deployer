@@ -616,6 +616,8 @@ Database credentials:
 - cost-management: cost
 - finance: finance
 
+Company Management key: ${ENCRYPTION_KEY}
+
 EOF
 
   chmod 600 "$CREDENTIALS_FILE"
@@ -629,7 +631,7 @@ EOF
 # -------------------------------
 if [[ -n "$1" ]]; then
   case "$1" in
-    crm-upgrade|crm-redeploy|crm-stop|crm-start|uninstall|help)
+    crm-upgrade|crm-tag-get|crm-tag-set|crm-redeploy|crm-stop|crm-start|uninstall|help)
       ;;
     *)
       error "❌ Unknown command: $1
@@ -683,6 +685,55 @@ if [[ "$1" == "crm-upgrade" ]]; then
 
   echo
   info "CRM stack successfully upgraded"
+
+  exit 0
+fi
+
+# -------------------------------
+# CRM get tag
+# -------------------------------
+if [[ "$1" == "crm-tag-get" ]]; then
+
+  if [[ ! -f crm.yaml ]]; then
+    error "crm.yaml not found in current directory"
+  fi
+
+  TAG=$(grep -m1 "image:" crm.yaml | sed -E 's|.*:([^:/[:space:]]+)$|\1|')
+
+  if [[ -z "$TAG" ]]; then
+    error "Could not detect tag in crm.yaml"
+  fi
+
+  echo
+  info "Current CRM image tag: $TAG"
+  echo
+
+  exit 0
+fi
+
+# -------------------------------
+# CRM set tag
+# -------------------------------
+if [[ "$1" == "crm-tag-set" ]]; then
+
+  NEW_TAG="$2"
+
+  if [[ -z "$NEW_TAG" ]]; then
+    error "Please specify a tag. Usage: ./deploy.sh crm-tag-set v1.0.3"
+  fi
+
+  if [[ ! -f crm.yaml ]]; then
+    error "crm.yaml not found in current directory"
+  fi
+
+  echo
+  info "Updating CRM image tags to: $NEW_TAG..."
+
+  sed -i -E "s|^([[:space:]]*image: .+):[^[:space:]]+|\1:${NEW_TAG}|" crm.yaml
+
+  echo
+  info "Tags successfully updated."
+  echo
 
   exit 0
 fi
@@ -807,11 +858,13 @@ fi
 if [[ "$1" == "help" ]]; then
   echo "Available commands:"
   echo
-  echo "  crm-upgrade   - Upgrade CRM stack"
-  echo "  crm-redeploy  - Redeploy CRM stack"
-  echo "  crm-stop      - Stop CRM stack"
-  echo "  crm-start     - Start CRM stack"
-  echo "  uninstall     - Uninstall all TitanCRM stacks, volumes and network"
+  echo "  crm-upgrade       - Upgrade CRM stack"
+  echo "  crm-redeploy      - Redeploy CRM stack"
+  echo "  crm-stop          - Stop CRM stack"
+  echo "  crm-start         - Start CRM stack"
+  echo "  crm-tag-get       - Show current CRM image tag"
+  echo "  crm-tag-set <tag> - Set new CRM image tag (e.g. ./deploy.sh crm-tag-set stable)"
+  echo "  uninstall         - Uninstall all TitanCRM stacks, volumes and network"
   echo
   exit 0
 fi
@@ -871,6 +924,8 @@ echo -e "company-management:       ${BRIGHT_BLUE}company${RESET}"
 echo -e "content:                  ${BRIGHT_BLUE}content${RESET}"
 echo -e "cost-management:          ${BRIGHT_BLUE}cost${RESET}"
 echo -e "finance:                  ${BRIGHT_BLUE}finance${RESET}"
+echo
+info "Company Management key: ${ENCRYPTION_KEY}"
 echo
 info "Please wait a few minutes if services are not immediately reachable."
 echo
