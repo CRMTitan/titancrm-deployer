@@ -78,15 +78,38 @@ After completion, all service URLs and credentials will be displayed.
 - Public IP address
 - Open ports: 80, 443
 
-### Domain
+### Domain Configuration Requirements
 
-Point domains to your server:
+The deployment relies on DNS-based routing for all exposed services.
+You are responsible for provisioning and maintaining all required DNS records prior to installation.
 
-- Frontend
-- API
-- RabbitMQ
-- pgAdmin
-- Dozzle
+DNS Prerequisite
+
+All services are exposed via dedicated subdomains under your primary domain.
+Each service endpoint must be resolvable to the server’s public IP address before deployment begins.
+
+Required DNS Records
+
+At minimum, you must configure DNS A (or AAAA) records for the following services:
+
+<your-domain> (as frontend)
+api.<your-domain>
+rabbitmq.<your-domain>
+pgadmin.<your-domain>
+dozzle.<your-domain>
+
+Additional subdomains may be required depending on enabled modules or future extensions of the system.
+
+Operational Requirements
+
+- DNS propagation must be completed prior to running the deployment
+- Partial or missing DNS configuration will result in service unavailability
+- The deployment process does not perform DNS provisioning or validation
+- You are responsible for ensuring consistency between configured domains and enabled services
+
+Important Notice
+
+⚠️ Failure to configure all required subdomains will lead to incomplete system functionality and may prevent successful deployment or service access.
 
 ---
 
@@ -103,8 +126,8 @@ Set your domains:
 ```bash
 FRONTEND_DOMAIN=yourdomain.ltd
 BACKEND_DOMAIN=api.yourdomain.ltd
-RABBITMQ_DOMAIN=rabbit.yourdomain.ltd
-PGADMIN_DOMAIN=pgadmin.yourdomain.ltd
+RABBITMQ_DOMAIN=mq.yourdomain.ltd
+PGADMIN_DOMAIN=db.yourdomain.ltd
 DOZZLE_DOMAIN=logs.yourdomain.ltd
 ```
 
