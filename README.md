@@ -149,40 +149,49 @@ DOZZLE_DOMAIN=logs.yourdomain.ltd
 
 ## What Gets Deployed
 
-- PostgreSQL databases
-- RabbitMQ
-- pgAdmin
-- Dozzle (logs)
-- TitanCRM services (API, frontend, workers)
-- Nginx reverse proxy with HTTPS
+The deployment provisions a full TitanCRM stack, including:
+
+- **Core services**
+  - PostgreSQL databases
+  - RabbitMQ message broker
+
+- **Application layer**
+  - TitanCRM microservices
+
+- **Management & observability**
+  - pgAdmin (database management UI)
+  - Dozzle (logs viewer)
+
+- **Edge layer**
+  - Reverse proxy with automatic SSL certificate provisioning
 
 ---
 
 ## Deployment Flow
 
-1. System validation
-2. Docker setup
-3. Infrastructure deployment
-4. CRM services deployment
-5. Reverse proxy + HTTPS
+1. Validate system prerequisites
+2. Prepare Docker environment
+3. Deploy infrastructure (DB, RabbitMQ, etc.)
+4. Deploy TitanCRM microservices
+5. Configure edge layer
 
-The process is fully automated.
+The entire process is fully automated.
 
 ---
 
 ## Access
 
-After deployment:
+After deployment, services are available at:
 
-- Frontend: https://FRONTEND_DOMAIN
-- API: https://BACKEND_DOMAIN
-- RabbitMQ: https://RABBITMQ_DOMAIN
-- pgAdmin: https://PGADMIN_DOMAIN
-- Logs: https://DOZZLE_DOMAIN
+- Frontend → https://FRONTEND_DOMAIN
+- API → https://BACKEND_DOMAIN
+- RabbitMQ UI → https://RABBITMQ_DOMAIN
+- Databases UI → https://PGADMIN_DOMAIN
+- Logs UI → https://DOZZLE_DOMAIN
 
-Credentials are generated automatically and saved in `credentials.txt`.
+Credentials are generated automatically and stored in `credentials.txt`.
 
-> Some services may take a few minutes to become available.
+> Note: some services may take a few minutes to become available after deployment.
 
 ---
 
