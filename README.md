@@ -90,15 +90,13 @@ Each service endpoint must be resolvable to the server’s public IP address bef
 
 **Required DNS Records**
 
-At minimum, you must configure DNS A (or AAAA) records for the following services:
+You must configure DNS A (or AAAA) records for the following services:
 
 - yourdomain.ltd (as frontend)
 - api.yourdomain.ltd
 - mq.yourdomain.ltd
 - db.yourdomain.ltd
 - logs.yourdomain.ltd
-
-Additional subdomains may be required depending on enabled modules or future extensions of the system.
 
 **Operational Requirements**
 
@@ -190,16 +188,16 @@ Credentials are generated automatically and saved in `credentials.txt`.
 ./deploy.sh <command>
 ```
 
-| Command        | Description                                 |
-| -------------- | ------------------------------------------- |
-| help           | Show available commands                     |
-| crm-upgrade    | Update CRM services                         |
-| crm-redeploy   | Recreate CRM services                       |
-| crm-stop       | Stop CRM services                           |
-| crm-start      | Start CRM services                          |
-| crm-tag-get    | Show current CRM image tag                  |
-| crm-tag-set    | Set new CRM image tag (requires redeploy)   |
-| uninstall      | Remove everything (⚠️ data loss)            |
+| Command      | Description                               |
+| ------------ | ----------------------------------------- |
+| help         | Show available commands                   |
+| crm-upgrade  | Update CRM services                       |
+| crm-redeploy | Recreate CRM services                     |
+| crm-stop     | Stop CRM services                         |
+| crm-start    | Start CRM services                        |
+| crm-tag-get  | Show current CRM image tag                |
+| crm-tag-set  | Set new CRM image tag (requires redeploy) |
+| uninstall    | Remove everything (⚠️ data loss)          |
 
 ---
 
