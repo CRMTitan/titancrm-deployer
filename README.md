@@ -78,15 +78,36 @@ After completion, all service URLs and credentials will be displayed.
 - Public IP address
 - Open ports: 80, 443
 
-### Domain
+### Domain Configuration Requirements
 
-Point domains to your server:
+The deployment relies on DNS-based routing for all exposed services.
+You are responsible for provisioning and maintaining all required DNS records prior to installation.
 
-- Frontend
-- API
-- RabbitMQ
-- pgAdmin
-- Dozzle
+**DNS Prerequisite**
+
+All services are exposed via dedicated subdomains under your primary domain.
+Each service endpoint must be resolvable to the server’s public IP address before deployment begins.
+
+**Required DNS Records**
+
+You must configure DNS A (or AAAA) records for the following services:
+
+- yourdomain.ltd (as frontend)
+- api.yourdomain.ltd
+- mq.yourdomain.ltd
+- db.yourdomain.ltd
+- logs.yourdomain.ltd
+
+**Operational Requirements**
+
+- DNS propagation must be completed prior to running the deployment
+- Partial or missing DNS configuration will result in service unavailability
+- The deployment process does not perform DNS provisioning or validation
+- You are responsible for ensuring consistency between configured domains and enabled services
+
+**Important Notice**
+
+⚠️ Failure to configure all required subdomains will lead to incomplete system functionality and may prevent successful deployment or service access.
 
 ---
 
@@ -103,8 +124,8 @@ Set your domains:
 ```bash
 FRONTEND_DOMAIN=yourdomain.ltd
 BACKEND_DOMAIN=api.yourdomain.ltd
-RABBITMQ_DOMAIN=rabbit.yourdomain.ltd
-PGADMIN_DOMAIN=pgadmin.yourdomain.ltd
+RABBITMQ_DOMAIN=mq.yourdomain.ltd
+PGADMIN_DOMAIN=db.yourdomain.ltd
 DOZZLE_DOMAIN=logs.yourdomain.ltd
 ```
 
@@ -167,16 +188,16 @@ Credentials are generated automatically and saved in `credentials.txt`.
 ./deploy.sh <command>
 ```
 
-| Command        | Description                                 |
-| -------------- | ------------------------------------------- |
-| help           | Show available commands                     |
-| crm-upgrade    | Update CRM services                         |
-| crm-redeploy   | Recreate CRM services                       |
-| crm-stop       | Stop CRM services                           |
-| crm-start      | Start CRM services                          |
-| crm-tag-get    | Show current CRM image tag                  |
-| crm-tag-set    | Set new CRM image tag (requires redeploy)   |
-| uninstall      | Remove everything (⚠️ data loss)            |
+| Command      | Description                               |
+| ------------ | ----------------------------------------- |
+| help         | Show available commands                   |
+| crm-upgrade  | Update CRM services                       |
+| crm-redeploy | Recreate CRM services                     |
+| crm-stop     | Stop CRM services                         |
+| crm-start    | Start CRM services                        |
+| crm-tag-get  | Show current CRM image tag                |
+| crm-tag-set  | Set new CRM image tag (requires redeploy) |
+| uninstall    | Remove everything (⚠️ data loss)          |
 
 ---
 
