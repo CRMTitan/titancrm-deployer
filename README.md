@@ -92,11 +92,11 @@ Each service endpoint must be resolvable to the server’s public IP address bef
 
 You must configure DNS A (or AAAA) records for the following services:
 
-- yourdomain.ltd (as frontend)
-- api.yourdomain.ltd
-- mq.yourdomain.ltd
-- db.yourdomain.ltd
-- logs.yourdomain.ltd
+- yourdomain.ltd        — frontend
+- api.yourdomain.ltd    — backend
+- mq.yourdomain.ltd     — message broker UI
+- db.yourdomain.ltd     — database UI
+- logs.yourdomain.ltd   — logs UI
 
 **Operational Requirements**
 
