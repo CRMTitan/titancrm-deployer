@@ -80,7 +80,7 @@ After completion, all service URLs and credentials will be displayed.
 
 ### Domain Configuration Requirements
 
-The deployment relies on DNS-based routing for all exposed services.
+⚠️ The deployment relies on DNS-based routing for all exposed services.
 You are responsible for provisioning and maintaining all required DNS records prior to installation.
 
 **DNS Prerequisite**
@@ -110,6 +110,8 @@ You must configure DNS A (or AAAA) records for the following services:
 **Important Notice**
 
 ⚠️ Failure to configure all required subdomains will lead to incomplete system functionality and may prevent successful deployment or service access.
+
+> ⚠️ **Note:** Missing DNS records can be added after deployment — SSL certificates will be issued automatically.
 
 ---
 
