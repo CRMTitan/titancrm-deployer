@@ -92,11 +92,11 @@ Each service endpoint must be resolvable to the server’s public IP address bef
 
 At minimum, you must configure DNS A (or AAAA) records for the following services:
 
-<your-domain> (as frontend)
-api.<your-domain>
-rabbitmq.<your-domain>
-pgadmin.<your-domain>
-dozzle.<your-domain>
+- <your-domain> (as frontend)
+- api.<your-domain>
+- mq.<your-domain>
+- db.<your-domain>
+- logs.<your-domain>
 
 Additional subdomains may be required depending on enabled modules or future extensions of the system.
 
