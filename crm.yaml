@@ -37,7 +37,7 @@ services:
     labels: *common-labels-crm
 
   finance:
-    image: ihorcrm/finance:latest-1.0.4
+    image: ihorcrm/finance:latest
     container_name: finance
     <<: *common-restart
     environment:
@@ -86,7 +86,7 @@ services:
     labels: *common-labels-crm
 
   api-gateway:
-    image: ihorcrm/api-gateway:latest-1.0.4
+    image: ihorcrm/api-gateway:latest
     container_name: api-gateway
     <<: *common-restart
     environment:
@@ -125,7 +125,7 @@ services:
     labels: *common-labels-crm
 
   binom:
-    image: ihorcrm/binom:latest-1.0.4
+    image: ihorcrm/binom:latest
     container_name: binom
     <<: *common-restart
     environment:
@@ -143,7 +143,7 @@ services:
     labels: *common-labels-crm
 
   company-management:
-    image: ihorcrm/company-management:latest-1.0.4
+    image: ihorcrm/company-management:latest
     container_name: company-management
     <<: *common-restart
     environment:
@@ -176,7 +176,7 @@ services:
     labels: *common-labels-crm
 
   app-auth:
-    image: ihorcrm/app-auth:latest-1.0.4
+    image: ihorcrm/app-auth:latest
     container_name: app-auth
     <<: *common-restart
     environment:
@@ -199,7 +199,7 @@ services:
     labels: *common-labels-crm
 
   content:
-    image: ihorcrm/content:latest-1.0.4
+    image: ihorcrm/content:latest
     container_name: content
     <<: *common-restart
     environment:
@@ -225,7 +225,7 @@ services:
     labels: *common-labels-crm
 
   cost-management:
-    image: ihorcrm/cost-management:latest-1.0.4
+    image: ihorcrm/cost-management:latest
     container_name: cost-management
     <<: *common-restart
     environment:
@@ -251,7 +251,7 @@ services:
     labels: *common-labels-crm
 
   facebook:
-    image: ihorcrm/facebook:latest-1.0.4
+    image: ihorcrm/facebook:latest
     container_name: facebook
     <<: *common-restart
     environment:
@@ -271,7 +271,7 @@ services:
     labels: *common-labels-crm
 
   analytics:
-    image: ihorcrm/analytics:latest-1.0.4
+    image: ihorcrm/analytics:latest
     container_name: analytics
     <<: *common-restart
     environment:
@@ -299,7 +299,7 @@ services:
     labels: *common-labels-crm
 
   scheduler:
-    image: ihorcrm/scheduler:latest-1.0.4
+    image: ihorcrm/scheduler:latest
     container_name: scheduler
     <<: *common-restart
     environment:
@@ -320,7 +320,7 @@ services:
     labels: *common-labels-crm
 
   telegram-bot:
-    image: ihorcrm/telegram-bot:latest-1.0.4
+    image: ihorcrm/telegram-bot:latest
     container_name: telegram-bot
     <<: *common-restart
     environment:
@@ -340,7 +340,7 @@ services:
     labels: *common-labels-crm
 
   keitaro:
-    image: ihorcrm/keitaro:latest-1.0.4
+    image: ihorcrm/keitaro:latest
     container_name: keitaro
     <<: *common-restart
     environment:
@@ -358,7 +358,7 @@ services:
     labels: *common-labels-crm
 
   mail:
-    image: ihorcrm/mail:latest-1.0.4
+    image: ihorcrm/mail:latest
     container_name: mail
     <<: *common-restart
     environment:
