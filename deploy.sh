@@ -107,8 +107,8 @@ check_disk() {
 
   FREE_SPACE=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
 
-  if [[ "$FREE_SPACE" -lt 50 ]]; then
-    error "At least 50GB of free disk space is required"
+  if [[ "$FREE_SPACE" -lt 120 ]]; then
+    error "At least 120GB of free disk space is required"
   fi
 
   info "Disk space OK (${FREE_SPACE}GB available)"
