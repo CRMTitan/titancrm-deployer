@@ -83,12 +83,12 @@ After completion, all service URLs and credentials will be displayed.
 The deployment relies on DNS-based routing for all exposed services.
 You are responsible for provisioning and maintaining all required DNS records prior to installation.
 
-DNS Prerequisite
+**DNS Prerequisite**
 
 All services are exposed via dedicated subdomains under your primary domain.
 Each service endpoint must be resolvable to the server’s public IP address before deployment begins.
 
-Required DNS Records
+**Required DNS Records**
 
 At minimum, you must configure DNS A (or AAAA) records for the following services:
 
@@ -100,14 +100,14 @@ dozzle.<your-domain>
 
 Additional subdomains may be required depending on enabled modules or future extensions of the system.
 
-Operational Requirements
+**Operational Requirements**
 
 - DNS propagation must be completed prior to running the deployment
 - Partial or missing DNS configuration will result in service unavailability
 - The deployment process does not perform DNS provisioning or validation
 - You are responsible for ensuring consistency between configured domains and enabled services
 
-Important Notice
+**Important Notice**
 
 ⚠️ Failure to configure all required subdomains will lead to incomplete system functionality and may prevent successful deployment or service access.
 
