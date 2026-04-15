@@ -124,6 +124,24 @@ services:
     logging: *common-logging
     labels: *common-labels-crm
 
+  binom:
+    image: ihorcrm/binom:latest-1.0.4
+    container_name: binom
+    <<: *common-restart
+    environment:
+      COMMIT_SHORT_SHA: "n/a"
+      BINOM_HOST: "0.0.0.0"
+      BINOM_PORT: "4200"
+      BINOM_HTTP_HOST: "0.0.0.0"
+      BINOM_HTTP_PORT: "8080"
+      BINOM_CLIENT_HOST: "0.0.0.0"
+      BINOM_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
+    networks: *common-network
+    logging: *common-logging
+    labels: *common-labels-crm
+
   company-management:
     image: ihorcrm/company-management:latest-1.0.4
     container_name: company-management
@@ -225,6 +243,8 @@ services:
       KEITARO_CLIENT_PORT: "4200"
       FACEBOOK_CLIENT_HOST: "facebook"
       FACEBOOK_CLIENT_PORT: "4200"
+      BINOM_CLIENT_HOST: "binom"
+      BINOM_CLIENT_PORT: "4200"
       RABBIT_QUEUE_URL: "amqp://cost-management:cost-management@rabbitmq:5672"
     networks: *common-network
     logging: *common-logging
