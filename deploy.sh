@@ -504,6 +504,7 @@ wait_crm_containers() {
     "analytics"
     "api-gateway"
     "app-auth"
+    "binom"
     "company-management"
     "content"
     "cost-management"
