@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -e
 
 # =====[ INIT: Clear screen ]=====
 if [[ -t 1 ]]; then
@@ -62,21 +62,33 @@ confirm_deploy() {
 # =====[ CHECK: Initial deploy ]=====
 check_deploy() {
   info "Checking deployment status..."
-
+  echo
   if [[ -f "$FINAL_MARKER" ]]; then
-    error "TitanCRM is already installed on this server.
+    error "TitanCRM has already been deployed on this server.
 
-Run './deploy.sh uninstall' before deploying again."
+A previous installation was completed successfully.
+
+Run './deploy.sh uninstall' before deploying again.
+
+This will remove existing containers, volumes and data.
+Proceed only if you understand the implications.
+"
   fi
 
   if [[ -f "$MARKER_FILE" ]]; then
-    error "⚠️ Previous installation was interrupted.
+    error "Detected an incomplete TitanCRM deployment.
 
-System is in inconsistent state.
-Run './deploy.sh uninstall' before deploying again."
+A previous installation was interrupted (manually or due to an error).
+The system may be in an inconsistent state.
+
+Run './deploy.sh uninstall' before deploying again.
+
+This will remove existing containers, volumes and data.
+Proceed only if you understand the implications.
+"
   fi
 
-  info "Starting initial deployment..."
+  info "Starting deployment..."
   echo
   mkdir -p "$(dirname "$MARKER_FILE")"
   touch "$MARKER_FILE"
@@ -84,8 +96,8 @@ Run './deploy.sh uninstall' before deploying again."
 }
 
 # =====[ DEPLOY: Done ]=====
-mark_deploy() {
-  info "Finalizing deployment..."
+finalize_deploy() {
+  info "Completing deployment..."
   mkdir -p "$(dirname "$FINAL_MARKER")"
   rm -f "$MARKER_FILE"
   touch "$FINAL_MARKER"
@@ -936,7 +948,7 @@ wait_crm_containers
 deploy_proxy
 load_env
 save_credentials
-mark_deploy
+finalize_deploy
 
 echo
 info "TitanCRM is ready!"
