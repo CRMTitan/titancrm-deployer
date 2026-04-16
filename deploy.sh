@@ -19,6 +19,10 @@ BRIGHT_BLUE="\e[94m"
 BRIGHT_GREEN="\e[92m"
 RESET="\e[0m"
 
+# =====[ DEPLOY: Marker ] =====
+MARKER_FILE="/opt/titancrm/.installing"
+FINAL_MARKER="/opt/titancrm/.installed"
+
 # =====[ OUTPUT: Credentials file ]=====
 CREDENTIALS_FILE="credentials.txt"
 
@@ -53,6 +57,40 @@ confirm_deploy() {
   echo
   info "Confirmation accepted. Continuing deployment..."
   echo
+}
+
+# =====[ CHECK: Initial deploy ]=====
+check_deploy() {
+  info "Checking deployment status..."
+
+  if [[ -f "$FINAL_MARKER" ]]; then
+    error "TitanCRM is already installed on this server.
+
+Run './deploy.sh uninstall' before deploying again."
+  fi
+
+  if [[ -f "$MARKER_FILE" ]]; then
+    error "⚠️ Previous installation was interrupted.
+
+System is in inconsistent state.
+Run './deploy.sh uninstall' before deploying again."
+  fi
+
+  info "Starting initial deployment..."
+  mkdir -p "$(dirname "$MARKER_FILE")"
+  touch "$MARKER_FILE"
+}
+
+# =====[ DEPLOY: Done ]=====
+mark_deploy() {
+  info "Finalizing deployment..."
+
+  mkdir -p "$(dirname "$FINAL_MARKER")"
+
+  rm -f "$MARKER_FILE"
+
+  touch "$FINAL_MARKER"
+
 }
 
 # =====[ CHECK: Integrity ]=====
@@ -837,7 +875,6 @@ if [[ "$1" == "uninstall" ]]; then
     infra-finance-db
     infra-rabbitmq
     infra-pgadmin
-    infra-portainer
     infra-dozzle
     proxy-html
     proxy-certs
@@ -846,6 +883,11 @@ if [[ "$1" == "uninstall" ]]; then
   for VOLUME in "${VOLUMES[@]}"; do
     docker volume rm "$VOLUME" >/dev/null 2>&1 || true
   done
+
+  echo
+  info "Removing deployment state..."
+  rm -f "$MARKER_FILE" "$FINAL_MARKER"
+  rmdir "$(dirname "$MARKER_FILE")" 2>/dev/null || true
 
   echo
   info "All TitanCRM stacks, volumes and network removed successfully"
@@ -874,6 +916,7 @@ fi
 if [[ -z "$1" ]]; then
   info "🚀 Starting TitanCRM deployment..."
   confirm_deploy
+  check_deploy
 fi
 
 integrity_check
@@ -894,6 +937,7 @@ wait_crm_containers
 deploy_proxy
 load_env
 save_credentials
+mark_deploy
 
 echo
 info "TitanCRM is ready!"
