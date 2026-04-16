@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 # =====[ INIT: Clear screen ]=====
 if [[ -t 1 ]]; then
@@ -77,20 +77,18 @@ Run './deploy.sh uninstall' before deploying again."
   fi
 
   info "Starting initial deployment..."
+  echo
   mkdir -p "$(dirname "$MARKER_FILE")"
   touch "$MARKER_FILE"
+  echo
 }
 
 # =====[ DEPLOY: Done ]=====
 mark_deploy() {
   info "Finalizing deployment..."
-
   mkdir -p "$(dirname "$FINAL_MARKER")"
-
   rm -f "$MARKER_FILE"
-
   touch "$FINAL_MARKER"
-
 }
 
 # =====[ CHECK: Integrity ]=====
@@ -170,8 +168,9 @@ install_docker() {
 
   info "Setting up Docker GPG key..."
   install -m 0755 -d /etc/apt/keyrings >/dev/null 2>&1
+  rm -f /etc/apt/keyrings/docker.gpg
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-    | gpg --dearmor -o /etc/apt/keyrings/docker.gpg >/dev/null 2>&1
+    | gpg --batch --yes --dearmor -o /etc/apt/keyrings/docker.gpg >/dev/null 2>&1
   chmod a+r /etc/apt/keyrings/docker.gpg >/dev/null 2>&1
 
   info "Adding Docker repository..."
