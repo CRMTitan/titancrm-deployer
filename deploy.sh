@@ -60,7 +60,7 @@ confirm_deploy() {
 }
 
 # =====[ CHECK: Initial deploy ]=====
-check_deploy() {
+deploy_start() {
   info "Checking deployment status..."
   echo
   if [[ -f "$FINAL_MARKER" ]]; then
@@ -96,8 +96,8 @@ Proceed only if you understand the implications.
 }
 
 # =====[ DEPLOY: Done ]=====
-finalize_deploy() {
-  info "Completing deployment..."
+deploy_done() {
+  info "Completing deployment process..."
   mkdir -p "$(dirname "$FINAL_MARKER")"
   rm -f "$MARKER_FILE"
   touch "$FINAL_MARKER"
@@ -927,7 +927,7 @@ fi
 if [[ -z "$1" ]]; then
   info "🚀 Starting TitanCRM deployment..."
   confirm_deploy
-  check_deploy
+  deploy_start
 fi
 
 integrity_check
@@ -948,7 +948,7 @@ wait_crm_containers
 deploy_proxy
 load_env
 save_credentials
-finalize_deploy
+deploy_done
 
 echo
 info "TitanCRM is ready!"
