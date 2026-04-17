@@ -19,6 +19,10 @@ BRIGHT_BLUE="\e[94m"
 BRIGHT_GREEN="\e[92m"
 RESET="\e[0m"
 
+# =====[ DEPLOY: Marker ] =====
+MARKER_FILE="/opt/titancrm/.installing"
+FINAL_MARKER="/opt/titancrm/.installed"
+
 # =====[ OUTPUT: Credentials file ]=====
 CREDENTIALS_FILE="credentials.txt"
 
@@ -53,6 +57,50 @@ confirm_deploy() {
   echo
   info "Confirmation accepted. Continuing deployment..."
   echo
+}
+
+# =====[ CHECK: Initial deploy ]=====
+check_deploy() {
+  info "Checking deployment status..."
+  echo
+  if [[ -f "$FINAL_MARKER" ]]; then
+    error "TitanCRM has already been deployed on this server.
+
+A previous installation was completed successfully.
+
+Run './deploy.sh uninstall' before deploying again.
+
+This will remove existing containers, volumes and data.
+Proceed only if you understand the implications.
+"
+  fi
+
+  if [[ -f "$MARKER_FILE" ]]; then
+    error "Detected an incomplete TitanCRM deployment.
+
+A previous installation was interrupted (manually or due to an error).
+The system may be in an inconsistent state.
+
+Run './deploy.sh uninstall' before deploying again.
+
+This will remove existing containers, volumes and data.
+Proceed only if you understand the implications.
+"
+  fi
+
+  info "Starting deployment..."
+  echo
+  mkdir -p "$(dirname "$MARKER_FILE")"
+  touch "$MARKER_FILE"
+  echo
+}
+
+# =====[ DEPLOY: Done ]=====
+finalize_deploy() {
+  info "Completing deployment..."
+  mkdir -p "$(dirname "$FINAL_MARKER")"
+  rm -f "$MARKER_FILE"
+  touch "$FINAL_MARKER"
 }
 
 # =====[ CHECK: Integrity ]=====
@@ -132,8 +180,9 @@ install_docker() {
 
   info "Setting up Docker GPG key..."
   install -m 0755 -d /etc/apt/keyrings >/dev/null 2>&1
+  rm -f /etc/apt/keyrings/docker.gpg
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-    | gpg --dearmor -o /etc/apt/keyrings/docker.gpg >/dev/null 2>&1
+    | gpg --batch --yes --dearmor -o /etc/apt/keyrings/docker.gpg >/dev/null 2>&1
   chmod a+r /etc/apt/keyrings/docker.gpg >/dev/null 2>&1
 
   info "Adding Docker repository..."
@@ -837,7 +886,6 @@ if [[ "$1" == "uninstall" ]]; then
     infra-finance-db
     infra-rabbitmq
     infra-pgadmin
-    infra-portainer
     infra-dozzle
     proxy-html
     proxy-certs
@@ -846,6 +894,11 @@ if [[ "$1" == "uninstall" ]]; then
   for VOLUME in "${VOLUMES[@]}"; do
     docker volume rm "$VOLUME" >/dev/null 2>&1 || true
   done
+
+  echo
+  info "Removing deployment state..."
+  rm -f "$MARKER_FILE" "$FINAL_MARKER"
+  rmdir "$(dirname "$MARKER_FILE")" 2>/dev/null || true
 
   echo
   info "All TitanCRM stacks, volumes and network removed successfully"
@@ -874,6 +927,7 @@ fi
 if [[ -z "$1" ]]; then
   info "🚀 Starting TitanCRM deployment..."
   confirm_deploy
+  check_deploy
 fi
 
 integrity_check
@@ -894,6 +948,7 @@ wait_crm_containers
 deploy_proxy
 load_env
 save_credentials
+finalize_deploy
 
 echo
 info "TitanCRM is ready!"
