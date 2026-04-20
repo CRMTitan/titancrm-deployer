@@ -166,6 +166,8 @@ services:
       FINANCE_CLIENT_PORT: "4200"
       KEITARO_CLIENT_HOST: "keitaro"
       KEITARO_CLIENT_PORT: "4200"
+      BINOM_CLIENT_HOST: "binom"
+      BINOM_CLIENT_PORT: "4200"
       CONTENT_CLIENT_HOST: "content"
       CONTENT_CLIENT_PORT: "4200"
       TELEGRAM_BOT_CLIENT_HOST: "telegram-bot"
