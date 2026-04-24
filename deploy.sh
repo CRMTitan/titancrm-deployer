@@ -922,7 +922,7 @@ if [[ "$1" == "help" ]]; then
   echo "  crm-stop          - Stop CRM stack"
   echo "  crm-start         - Start CRM stack"
   echo "  crm-tag-get       - Show current CRM image tag"
-  echo "  crm-tag-set <tag> - Set new CRM image tag (e.g. ./deploy.sh crm-tag-set stable)"
+  echo "  crm-tag-set <tag> - Set new CRM image tag (e.g. ./deploy.sh crm-tag-set stable-1.0.3)"
   echo "  uninstall         - Uninstall all TitanCRM stacks, volumes and network"
   echo
   exit 0
