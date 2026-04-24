@@ -172,6 +172,7 @@ services:
       CONTENT_CLIENT_PORT: "4200"
       TELEGRAM_BOT_CLIENT_HOST: "telegram-bot"
       TELEGRAM_BOT_CLIENT_PORT: "4200"
+      CRM_IMAGE_TAG: "latest"
       RABBIT_QUEUE_URL: "amqp://company-management:company-management@rabbitmq:5672"
     networks: *common-network
     logging: *common-logging

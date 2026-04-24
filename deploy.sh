@@ -781,8 +781,13 @@ if [[ "$1" == "crm-tag-set" ]]; then
 
   sed -i -E "s|^([[:space:]]*image: .+):[^[:space:]]+|\1:${NEW_TAG}|" crm.yaml
 
+  echo "Updating CRM_IMAGE_TAG..."
+
+  sed -i -E "s|^( *CRM_IMAGE_TAG:\s*)\"[^\"]*\"|\1\"${NEW_TAG}\"|g" crm.yaml
+
   echo
   info "Tags successfully updated."
+  info "You can now upgrade the CRM stack using: ./deploy.sh crm-upgrade"
   echo
 
   exit 0
