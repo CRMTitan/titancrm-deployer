@@ -769,7 +769,7 @@ if [[ "$1" == "crm-tag-set" ]]; then
   NEW_TAG="$2"
 
   if [[ -z "$NEW_TAG" ]]; then
-    error "Please specify a tag. Usage: ./deploy.sh crm-tag-set v1.0.3"
+    error "Please specify a tag. Usage: ./deploy.sh crm-tag-set stable-1.0.3"
   fi
 
   if [[ ! -f crm.yaml ]]; then
