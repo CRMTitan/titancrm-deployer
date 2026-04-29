@@ -214,6 +214,54 @@ Credentials are generated automatically and stored in `credentials.txt`.
 
 ---
 
+## CRM Update
+
+TitanCRM uses versioned Docker image tags to manage CRM updates.
+
+### Step 1: Set a new image tag
+
+Use the `crm-tag-set` command to update the image tag:
+
+```bash
+./deploy.sh crm-tag-set stable-1.2.3
+```
+
+- Recommended tag format: stable-x.x.x (e.g. stable-1.2.3)
+- The deployer extracts the semantic version (x.y.z) and prevents downgrades by default
+- If a lower version is provided, the operation will be blocked to avoid potential data inconsistency and unpredictable behavior
+
+Non-version tags (e.g. latest, beta) are allowed, but version checks will be skipped with a warning.
+
+### Force downgrade (not recommended)
+
+You can override version checks using the --force flag:
+
+```bash
+./deploy.sh crm-tag-set stable-1.0.3 --force
+```
+
+⚠️ Warning:
+
+- Downgrading may break database compatibility
+- Existing data may become inconsistent or unusable
+- System behavior is not guaranteed after downgrade
+
+### Step 2: Apply the update
+
+After setting the tag, apply changes by upgrading the CRM stack:
+
+```bash
+./deploy.sh crm-upgrade
+```
+
+This will:
+
+- Pull updated Docker images
+- Restart CRM containers
+- Remove unused CRM images
+
+---
+
 ## Troubleshooting
 
 Check logs:

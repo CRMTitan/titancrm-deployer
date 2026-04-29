@@ -764,16 +764,76 @@ fi
 # -------------------------------
 # CRM set tag
 # -------------------------------
-if [[ "$1" == "crm-tag-set" ]]; then
+if [[ "${1:-}" == "crm-tag-set" ]]; then
 
-  NEW_TAG="$2"
+  NEW_TAG="${2:-}"
+  FORCE_FLAG=""
+
+  # support --force anywhere
+  for arg in "$@"; do
+    if [[ "$arg" == "--force" ]]; then
+      FORCE_FLAG="--force"
+    fi
+  done
 
   if [[ -z "$NEW_TAG" ]]; then
-    error "Please specify a tag. Usage: ./deploy.sh crm-tag-set stable-1.0.3"
+    error "Please specify a tag. Usage: ./deploy.sh crm-tag-set stable-1.0.3 [--force]"
   fi
 
   if [[ ! -f crm.yaml ]]; then
     error "crm.yaml not found in current directory"
+  fi
+
+  # =====[ VERSION HELPERS ]=====
+  extract_version() {
+    local v
+    v=$(echo "$1" | grep -oE '[0-9]+(\.[0-9]+)+' 2>/dev/null || true)
+    echo "$v"
+  }
+
+  version_to_number() {
+    local v="$1"
+    echo "$v" | awk -F. '{ printf("%03d%03d%03d\n", $1,$2,$3); }'
+  }
+
+  CURRENT_TAG=$(grep -m1 "CRM_IMAGE_TAG" crm.yaml | sed -E 's|.*"([^"]+)"|\1|')
+
+  CURRENT_VERSION=$(extract_version "$CURRENT_TAG")
+  NEW_VERSION=$(extract_version "$NEW_TAG")
+
+  # =====[ VERSION CHECK ]=====
+  if [[ "$FORCE_FLAG" != "--force" ]]; then
+
+    if [[ -z "$NEW_VERSION" ]]; then
+      warn "Tag '$NEW_TAG' does not contain a version (x.y.z). Skipping version check."
+      echo
+    elif [[ -n "$CURRENT_VERSION" ]]; then
+
+      CURRENT_NUM=$(version_to_number "$CURRENT_VERSION")
+      NEW_NUM=$(version_to_number "$NEW_VERSION")
+
+      if [[ "$NEW_NUM" -lt "$CURRENT_NUM" ]]; then
+        error "Downgrade detected.
+
+Current version: $CURRENT_TAG
+Requested version: $NEW_TAG ⚠️
+
+⚠️  Downgrading CRM is not allowed as it may lead to data inconsistency
+and unpredictable system behavior.
+
+If you really need to proceed, run:
+  ./deploy.sh crm-tag-set $NEW_TAG --force
+"
+      fi
+
+    fi
+  fi
+
+  # =====[ FORCE WARNING ]=====
+  if [[ "$FORCE_FLAG" == "--force" ]]; then
+    warn "⚠️  Force mode enabled. Version check skipped."
+    warn "You are responsible for any potential issues caused by this operation."
+    echo
   fi
 
   echo
@@ -781,11 +841,8 @@ if [[ "$1" == "crm-tag-set" ]]; then
 
   sed -i -E "s|^([[:space:]]*image: .+):[^[:space:]]+|\1:${NEW_TAG}|" crm.yaml
 
-  echo "Updating CRM_IMAGE_TAG..."
-
   sed -i -E "s|^( *CRM_IMAGE_TAG:\s*)\"[^\"]*\"|\1\"${NEW_TAG}\"|g" crm.yaml
 
-  echo
   info "Tags successfully updated."
   info "You can now upgrade the CRM stack using: ./deploy.sh crm-upgrade"
   echo
