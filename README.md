@@ -227,7 +227,7 @@ Use the `crm-tag-set` command to update the image tag:
 ```
 
 - Recommended tag format: ```stable-x.x.x``` (e.g. ```stable-1.2.3```)
-- The deployer extracts the semantic version (x.y.z) and prevents downgrades by default
+- The deployer extracts the semantic version (```x.y.z```) and prevents downgrades by default
 - If a lower version is provided, the operation will be blocked to avoid potential data inconsistency and unpredictable behavior
 
 Non-version tags (e.g. ```latest```, ```beta```) are allowed, but version checks will be skipped with a warning.
