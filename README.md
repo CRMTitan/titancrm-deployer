@@ -209,7 +209,7 @@ Credentials are generated automatically and stored in `credentials.txt`.
 | crm-stop                    | Stop CRM services                         |
 | crm-start                   | Start CRM services                        |
 | crm-tag-get                 | Show current CRM image tag                |
-| crm-tag-set <tag> [--force] | Set new CRM image tag (requires upgrade)  |
+| crm-tag-set `tag` [--force] | Set new CRM image tag (requires upgrade)  |
 | uninstall                   | Remove everything (⚠️ data loss)          |
 
 ---
