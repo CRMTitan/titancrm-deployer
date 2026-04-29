@@ -234,7 +234,7 @@ Non-version tags (e.g. latest, beta) are allowed, but version checks will be ski
 
 ### Force downgrade (not recommended)
 
-You can override version checks using the --force flag:
+You can override version checks using the ```--force``` flag:
 
 ```bash
 ./deploy.sh crm-tag-set stable-1.0.3 --force
