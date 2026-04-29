@@ -257,7 +257,7 @@ After setting the tag, apply changes by upgrading the CRM stack:
 This will:
 
 - Pull updated Docker images
-- Restart CRM containers
+- Restart CRM microservices
 - Remove unused CRM images
 
 ---
