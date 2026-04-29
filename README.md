@@ -201,16 +201,64 @@ Credentials are generated automatically and stored in `credentials.txt`.
 ./deploy.sh <command>
 ```
 
-| Command      | Description                               |
-| ------------ | ----------------------------------------- |
-| help         | Show available commands                   |
-| crm-upgrade  | Update CRM services                       |
-| crm-redeploy | Recreate CRM services                     |
-| crm-stop     | Stop CRM services                         |
-| crm-start    | Start CRM services                        |
-| crm-tag-get  | Show current CRM image tag                |
-| crm-tag-set  | Set new CRM image tag (requires redeploy) |
-| uninstall    | Remove everything (⚠️ data loss)          |
+| Command                     | Description                                                                      |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| help                        | Show available commands                                                          |
+| crm-upgrade                 | Update CRM services                                                              |
+| crm-redeploy                | Recreate CRM services                                                            |
+| crm-stop                    | Stop CRM services                                                                |
+| crm-start                   | Start CRM services                                                               |
+| crm-tag-get                 | Show current CRM image tag                                                       |
+| crm-tag-set `tag` [--force] | Set new CRM image tag (requires upgrade). Use --force to bypass version checks.  |
+| uninstall                   | Remove everything (⚠️ data loss)                                                 |
+
+---
+
+## CRM Update
+
+TitanCRM uses versioned Docker image tags to manage CRM updates.
+
+### Step 1: Set a new image tag
+
+Use the `crm-tag-set` command to update the image tag:
+
+```bash
+./deploy.sh crm-tag-set stable-1.2.3
+```
+
+- Recommended tag format: ```stable-x.x.x``` (e.g. ```stable-1.2.3```)
+- The deployer extracts the semantic version (```x.y.z```) and prevents downgrades by default
+- If a lower version is provided, the operation will be blocked to avoid potential data inconsistency and unpredictable behavior
+
+Non-version tags (e.g. ```latest```, ```beta```) are allowed, but version checks will be skipped with a warning.
+
+### Force downgrade (not recommended)
+
+You can override version checks using the ```--force``` flag:
+
+```bash
+./deploy.sh crm-tag-set stable-1.0.3 --force
+```
+
+⚠️ Warning:
+
+- Downgrading may break database compatibility
+- Existing data may become inconsistent or unusable
+- System behavior is not guaranteed after downgrade
+
+### Step 2: Apply the update
+
+After setting the tag, apply changes by upgrading the CRM stack:
+
+```bash
+./deploy.sh crm-upgrade
+```
+
+This will:
+
+- Pull updated Docker images
+- Restart CRM microservices
+- Remove unused CRM images
 
 ---
 
