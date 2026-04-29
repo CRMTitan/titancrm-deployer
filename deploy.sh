@@ -974,13 +974,13 @@ fi
 if [[ "$1" == "help" ]]; then
   echo "Available commands:"
   echo
-  echo "  crm-upgrade       - Upgrade CRM stack"
-  echo "  crm-redeploy      - Redeploy CRM stack"
-  echo "  crm-stop          - Stop CRM stack"
-  echo "  crm-start         - Start CRM stack"
-  echo "  crm-tag-get       - Show current CRM image tag"
-  echo "  crm-tag-set <tag> - Set new CRM image tag (e.g. ./deploy.sh crm-tag-set stable-1.0.3)"
-  echo "  uninstall         - Uninstall all TitanCRM stacks, volumes and network"
+  echo "  crm-upgrade                 - Upgrade CRM stack"
+  echo "  crm-redeploy                - Redeploy CRM stack"
+  echo "  crm-stop                    - Stop CRM stack"
+  echo "  crm-start                   - Start CRM stack"
+  echo "  crm-tag-get                 - Show current CRM image tag"
+  echo "  crm-tag-set <tag> [--force] - Set a new CRM image tag (e.g. ./deploy.sh crm-tag-set stable-1.0.3). Use --force to override version checks"
+  echo "  uninstall                   - Uninstall all TitanCRM stacks, volumes and network"
   echo
   exit 0
 fi
