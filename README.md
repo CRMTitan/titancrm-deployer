@@ -92,13 +92,13 @@ Each service endpoint must be resolvable to the server’s public IP address bef
 
 You must configure DNS A (or AAAA) records for the following services:
 
-| Domain             | Description          |
-|--------------------|----------------------|
-| yourdomain.ltd     | frontend             |
-| api.yourdomain.ltd | backend API          |
-| mq.yourdomain.ltd  | message broker UI    |
-| db.yourdomain.ltd  | database UI          |
-| logs.yourdomain.ltd| logs UI              |
+| Domain              | Description       |
+| ------------------- | ----------------- |
+| yourdomain.ltd      | frontend          |
+| api.yourdomain.ltd  | backend API       |
+| mq.yourdomain.ltd   | message broker UI |
+| db.yourdomain.ltd   | database UI       |
+| logs.yourdomain.ltd | logs UI           |
 
 **Operational Requirements**
 
@@ -191,6 +191,9 @@ After deployment, services are available at:
 
 Credentials are generated automatically and stored in `credentials.txt`.
 
+> ⚠️ **Important:** Save `credentials.txt` after deployment and keep it available for support cases.  
+> If issues occur, the support team may request access to this file or to individual services listed in it.
+
 > Note: some services may take a few minutes to become available after deployment.
 
 ---
@@ -201,16 +204,16 @@ Credentials are generated automatically and stored in `credentials.txt`.
 ./deploy.sh <command>
 ```
 
-| Command                     | Description                                                                      |
-| --------------------------- | -------------------------------------------------------------------------------- |
-| help                        | Show available commands                                                          |
-| crm-upgrade                 | Update CRM services                                                              |
-| crm-redeploy                | Recreate CRM services                                                            |
-| crm-stop                    | Stop CRM services                                                                |
-| crm-start                   | Start CRM services                                                               |
-| crm-tag-get                 | Show current CRM image tag                                                       |
-| crm-tag-set `tag` [--force] | Set new CRM image tag (requires upgrade). Use --force to bypass version checks.  |
-| uninstall                   | Remove everything (⚠️ data loss)                                                 |
+| Command                     | Description                                                                     |
+| --------------------------- | ------------------------------------------------------------------------------- |
+| help                        | Show available commands                                                         |
+| crm-upgrade                 | Update CRM services                                                             |
+| crm-redeploy                | Recreate CRM services                                                           |
+| crm-stop                    | Stop CRM services                                                               |
+| crm-start                   | Start CRM services                                                              |
+| crm-tag-get                 | Show current CRM image tag                                                      |
+| crm-tag-set `tag` [--force] | Set new CRM image tag (requires upgrade). Use --force to bypass version checks. |
+| uninstall                   | Remove everything (⚠️ data loss)                                                |
 
 ---
 
@@ -226,15 +229,15 @@ Use the `crm-tag-set` command to update the image tag:
 ./deploy.sh crm-tag-set stable-1.2.3
 ```
 
-- Recommended tag format: ```stable-x.x.x``` (e.g. ```stable-1.2.3```)
-- The deployer extracts the semantic version (```x.y.z```) and prevents downgrades by default
+- Recommended tag format: `stable-x.x.x` (e.g. `stable-1.2.3`)
+- The deployer extracts the semantic version (`x.y.z`) and prevents downgrades by default
 - If a lower version is provided, the operation will be blocked to avoid potential data inconsistency and unpredictable behavior
 
-Non-version tags (e.g. ```latest```, ```beta```) are allowed, but version checks will be skipped with a warning.
+Non-version tags (e.g. `latest`, `beta`) are allowed, but version checks will be skipped with a warning.
 
 ### Force downgrade (not recommended)
 
-You can override version checks using the ```--force``` flag:
+You can override version checks using the `--force` flag:
 
 ```bash
 ./deploy.sh crm-tag-set stable-1.0.3 --force
