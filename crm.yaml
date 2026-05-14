@@ -53,6 +53,8 @@ services:
       COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
       KEITARO_CLIENT_HOST: "keitaro"
       KEITARO_CLIENT_PORT: "4200"
+      BINOM_CLIENT_HOST: "binom"
+      BINOM_CLIENT_PORT: "4200"
       GOOGLE_SHEET_ID: "1wkwZvD9sCua7QugSOqsgf7RGBomghvUFXPSyNZ2itS0"
       GOOGLE_SHEETS_CLIENT_EMAIL: "google-sheets@titan-crm-478116.iam.gserviceaccount.com"
       GOOGLE_SHEET_RANGE: "A:EA"
