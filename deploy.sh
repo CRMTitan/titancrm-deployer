@@ -480,6 +480,7 @@ configure_rabbitmq() {
   # Create service users
   # -------------------------------
   USERS=(
+    api-gateway
     cost-management
     scheduler
     content
@@ -502,6 +503,7 @@ configure_rabbitmq() {
   # -------------------------------
   PERMISSION_USERS=(
     admin
+    api-gateway
     cost-management
     scheduler
     content
