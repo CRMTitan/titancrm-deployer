@@ -117,7 +117,7 @@ You must configure DNS A (or AAAA) records for the following services:
 
 ## Configuration (.env)
 
-Set yout valid email for CRM login:
+Set your valid email for CRM login:
 
 ```bash
 SEED_ADMIN_EMAIL=email@yourdomain.ltd
