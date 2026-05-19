@@ -121,6 +121,7 @@ services:
       AWS_S3_BUCKET: "${AWS_S3_BUCKET}"
       AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+      RABBIT_QUEUE_URL: "amqp://api-gateway:api-gateway@rabbitmq:5672"
       VIRTUAL_HOST: "${BACKEND_DOMAIN}"
       LETSENCRYPT_HOST: "${BACKEND_DOMAIN}"
       VIRTUAL_PORT: 4200
