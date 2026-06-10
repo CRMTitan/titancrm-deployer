@@ -178,6 +178,10 @@ services:
       TELEGRAM_BOT_CLIENT_HOST: "telegram-bot"
       TELEGRAM_BOT_CLIENT_PORT: "4200"
       CRM_IMAGE_TAG: "latest"
+      AWS_S3_REGION: "${AWS_S3_REGION}"
+      AWS_S3_BUCKET: "${AWS_S3_BUCKET}"
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
       RABBIT_QUEUE_URL: "amqp://company-management:company-management@rabbitmq:5672"
     networks: *common-network
     logging: *common-logging
