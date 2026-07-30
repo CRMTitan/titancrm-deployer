@@ -42,6 +42,7 @@ services:
     <<: *common-restart
     environment:
       COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
       FINANCE_HOST: "0.0.0.0"
       FINANCE_PORT: "4200"
       FINANCE_HTTP_HOST: "0.0.0.0"
@@ -138,6 +139,7 @@ services:
     <<: *common-restart
     environment:
       COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
       BINOM_HOST: "0.0.0.0"
       BINOM_PORT: "4200"
       BINOM_HTTP_HOST: "0.0.0.0"
@@ -156,6 +158,7 @@ services:
     <<: *common-restart
     environment:
       COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
       COMPANY_MANAGEMENT_HOST: "0.0.0.0"
       COMPANY_MANAGEMENT_PORT: "4200"
       COMPANY_MANAGEMENT_HTTP_HOST: "0.0.0.0"
@@ -215,6 +218,7 @@ services:
     <<: *common-restart
     environment:
       COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
       CONTENT_HOST: "0.0.0.0"
       CONTENT_PORT: "4200"
       CONTENT_HTTP_HOST: "0.0.0.0"
@@ -244,6 +248,7 @@ services:
     <<: *common-restart
     environment:
       COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
       COST_MANAGEMENT_HOST: "0.0.0.0"
       COST_MANAGEMENT_PORT: "4200"
       COST_MANAGEMENT_HTTP_HOST: "0.0.0.0"
@@ -277,6 +282,7 @@ services:
     <<: *common-restart
     environment:
       COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
       FACEBOOK_HOST: "0.0.0.0"
       FACEBOOK_PORT: "4200"
       FACEBOOK_HTTP_HOST: "0.0.0.0"
@@ -297,6 +303,7 @@ services:
     <<: *common-restart
     environment:
       COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
       ANALYTICS_HOST: "0.0.0.0"
       ANALYTICS_PORT: "4200"
       ANALYTICS_HTTP_HOST: "0.0.0.0"
@@ -327,6 +334,7 @@ services:
     <<: *common-restart
     environment:
       COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
       SCHEDULER_HOST: "0.0.0.0"
       SCHEDULER_PORT: "4200"
       SCHEDULER_HTTP_HOST: "0.0.0.0"
@@ -348,6 +356,7 @@ services:
     <<: *common-restart
     environment:
       COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
       TELEGRAM_BOT_HOST: "0.0.0.0"
       TELEGRAM_BOT_PORT: "4200"
       TELEGRAM_BOT_HTTP_HOST: "0.0.0.0"
@@ -368,6 +377,7 @@ services:
     <<: *common-restart
     environment:
       COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
       KEITARO_HOST: "0.0.0.0"
       KEITARO_PORT: "4200"
       KEITARO_HTTP_HOST: "0.0.0.0"
@@ -386,6 +396,7 @@ services:
     <<: *common-restart
     environment:
       COMMIT_SHORT_SHA: "n/a"
+      NODE_ENV: "production"
       MAIL_HOST: "0.0.0.0"
       MAIL_PORT: "4200"
       MAIL_HTTP_HOST: "0.0.0.0"
