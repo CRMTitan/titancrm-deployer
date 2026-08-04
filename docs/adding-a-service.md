@@ -56,3 +56,13 @@ Add the service name to `USERS` and `PERMISSION_USERS` arrays in `configure_rabb
 ## 6. pgadmin/servers.json — configure_pgadmin() (if the service has a database)
 
 Add a server entry to the `configure_pgadmin()` heredoc so the database appears in pgAdmin automatically.
+
+## 7. Verify the script still parses
+
+```bash
+bash -n deploy.sh
+```
+
+No output and exit code `0` means the syntax is fine. This is the only check that does not need a clean
+Ubuntu server, so run it before every push — a syntax error in the main flow is otherwise discovered
+halfway through a client installation, leaving the server in a half-configured state.
