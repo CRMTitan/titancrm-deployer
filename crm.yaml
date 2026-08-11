@@ -108,6 +108,8 @@ services:
       FINANCE_CLIENT_PORT: "4200"
       ANALYTICS_CLIENT_HOST: "analytics"
       ANALYTICS_CLIENT_PORT: "4200"
+      CLICKHOUSE_CLIENT_HOST: "clickhouse"
+      CLICKHOUSE_CLIENT_PORT: "4200"
       CONTENT_CLIENT_HOST: "content"
       CONTENT_CLIENT_PORT: "4200"
       MAIL_CLIENT_HOST: "mail"
@@ -322,6 +324,8 @@ services:
       FINANCE_CLIENT_PORT: "4200"
       FACEBOOK_CLIENT_HOST: "facebook"
       FACEBOOK_CLIENT_PORT: "4200"
+      CLICKHOUSE_CLIENT_HOST: "clickhouse"
+      CLICKHOUSE_CLIENT_PORT: "4200"
     depends_on:
       - api-gateway
     networks: *common-network
@@ -345,6 +349,8 @@ services:
       COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
       FINANCE_CLIENT_HOST: "finance"
       FINANCE_CLIENT_PORT: "4200"
+      CLICKHOUSE_CLIENT_HOST: "clickhouse"
+      CLICKHOUSE_CLIENT_PORT: "4200"
       RABBIT_QUEUE_URL: "amqp://scheduler:scheduler@rabbitmq:5672"
     networks: *common-network
     logging: *common-logging
@@ -406,6 +412,8 @@ services:
       CLIENT_BASE_URL: "https://${FRONTEND_DOMAIN}"
       MAIL_CLIENT_HOST: "0.0.0.0"
       MAIL_CLIENT_PORT: "4200"
+      COMPANY_MANAGEMENT_CLIENT_HOST: "company-management"
+      COMPANY_MANAGEMENT_CLIENT_PORT: "4200"
     networks: *common-network
     logging: *common-logging
     labels: *common-labels-crm
