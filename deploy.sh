@@ -1121,8 +1121,6 @@ echo -e "clickhouse:               ${BRIGHT_BLUE}clickhouse${RESET}"
 echo
 info "Encryption Key: ${ENCRYPTION_KEY}"
 echo
-exec >&3 2>&4
-exec 3>&- 4>&-
 info "Please wait a few minutes if services are not immediately reachable."
 echo
 echo -e "${BRIGHT_RED}⚠️  Make sure to save your credentials in a safe place! They will not be shown again. Stored in:${RESET} ${BRIGHT_BLUE}${CREDENTIALS_FILE}${RESET}"
