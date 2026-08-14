@@ -15,7 +15,7 @@ fi
 LOG_FILE="$(dirname "$0")/deploy.log"
 
 exec 3>&1
-exec > >(tee -a "$LOG_FILE") 2>&1
+exec > >(tee >(sed -E 's/\x1B\[[0-9;]*[mK]//g' >> "$LOG_FILE")) 2>&1
 
 echo "========================================"
 echo "TitanCRM deployer started: $(date '+%Y-%m-%d %H:%M:%S')"
