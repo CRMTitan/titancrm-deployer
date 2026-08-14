@@ -305,7 +305,7 @@ Common issues:
 
 - **Proxy**: Nginx + Let's Encrypt
 - **Application**: TitanCRM microservices
-- **Infrastructure**: PostgreSQL, RabbitMQ, pgAdmin, Dozzle
+- **Infrastructure**: PostgreSQL, ClickHouse, RabbitMQ, pgAdmin, Dozzle
 
 All services run in Docker and communicate via a private network.
 
