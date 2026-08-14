@@ -1095,6 +1095,8 @@ echo "- All services to be fully ready and reachable"
 echo
 info "Once the process completes, you can access your services at:"
 echo
+exec 3>&1 4>&2
+exec >/dev/tty 2>&1
 echo -e "${BRIGHT_RED}Frontend:${RESET}                 ${BRIGHT_GREEN}https://${FRONTEND_DOMAIN}${RESET}"
 echo -e "login: ${BRIGHT_BLUE}${SEED_ADMIN_EMAIL}${RESET} ${BRIGHT_RED}|${RESET} password: ${BRIGHT_BLUE}${SEED_ADMIN_PASSWORD}${RESET}"
 echo
@@ -1119,6 +1121,8 @@ echo -e "clickhouse:               ${BRIGHT_BLUE}clickhouse${RESET}"
 echo
 info "Encryption Key: ${ENCRYPTION_KEY}"
 echo
+exec >&3 2>&4
+exec 3>&- 4>&-
 info "Please wait a few minutes if services are not immediately reachable."
 echo
 echo -e "${BRIGHT_RED}⚠️  Make sure to save your credentials in a safe place! They will not be shown again. Stored in:${RESET} ${BRIGHT_BLUE}${CREDENTIALS_FILE}${RESET}"
