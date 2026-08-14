@@ -73,7 +73,7 @@ After completion, all service URLs and credentials will be displayed.
 - Minimum: 180 GB disk
 - Recommended: 4 CPU / 8 GB RAM
 
-> ⚠️ **Disk space notice:** We recommend keeping sufficient free disk space beyond the minimum. Updates of microservices and general CRM operation require extra space to ensure smooth deployment and proper functioning of all services.
+> ⚠️ **Disk space notice:** Sufficient free disk space is required for reliable CRM operation and future updates. During a CRM update, new Docker images are downloaded before the previous images are removed, which temporarily increases disk usage. Database storage also grows as the CRM accumulates data over time. Running out of disk space can cause failed updates, database problems, or service interruptions. We strongly recommend keeping a reasonable amount of free space available at all times.
 
 ### Network
 
