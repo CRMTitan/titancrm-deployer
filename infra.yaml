@@ -56,6 +56,25 @@ services:
     volumes:
       - infra-finance-db:/var/lib/postgresql/data
 
+  clickhouse-instance:
+    <<: *infra-common
+    image: clickhouse/clickhouse-server:25.5
+    container_name: clickhouse-db
+    environment:
+      CLICKHOUSE_DB: clickhouse
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: clickhouse
+    volumes:
+      - infra-clickhouse-db:/var/lib/clickhouse
+      - infra-clickhouse-db-config:/etc/clickhouse-server/config.d
+      - infra-clickhouse-db-users:/etc/clickhouse-server/users.d
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    mem_limit: 3.5g
+    cpus: 1.5
+
   rabbitmq:
     <<: *infra-common
     image: rabbitmq:3.8.2-management
@@ -109,6 +128,12 @@ volumes:
   infra-cost-management-db:
     external: true
   infra-finance-db:
+    external: true
+  infra-clickhouse-db:
+    external: true
+  infra-clickhouse-db-config:
+    external: true
+  infra-clickhouse-db-users:
     external: true
   infra-rabbitmq:
     external: true

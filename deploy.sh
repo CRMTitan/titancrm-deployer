@@ -10,6 +10,17 @@ if [[ -t 1 ]]; then
   echo
 fi
 
+# =====[ OUTPUT: Deployment log ]=====
+
+LOG_FILE="$(dirname "$0")/deploy.log"
+
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "========================================"
+echo "TitanCRM deployer started: $(date '+%Y-%m-%d %H:%M:%S')"
+echo "========================================"
+echo
+
 # =====[ COLORS ]=====
 GREEN="\e[32m"
 RED="\e[31m"
@@ -155,8 +166,8 @@ check_disk() {
 
   FREE_SPACE=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
 
-  if [[ "$FREE_SPACE" -lt 120 ]]; then
-    error "At least 120GB of free disk space is required"
+  if [[ "$FREE_SPACE" -lt 180 ]]; then
+    error "At least 180GB of free disk space is required"
   fi
 
   info "Disk space OK (${FREE_SPACE}GB available)"
@@ -234,6 +245,9 @@ create_volumes() {
     infra-content-db
     infra-cost-management-db
     infra-finance-db
+    infra-clickhouse-db
+    infra-clickhouse-db-config
+    infra-clickhouse-db-users
     infra-rabbitmq
     infra-pgadmin
     proxy-html
@@ -404,6 +418,53 @@ EOF
 
 }
 
+# =====[ SETUP: ClickHouse configuration ]=====
+configure_clickhouse() {
+
+  info "Setting up ClickHouse configuration..."
+
+  echo -n "[50%] Writing settings.xml into config volume..."
+  docker run --rm -i -v infra-clickhouse-db-config:/data alpine sh -c "cat > /data/settings.xml" <<EOF >/dev/null 2>&1
+<clickhouse>
+
+    <logger>
+        <level>warning</level>
+        <console>true</console>
+    </logger>
+
+    <query_log remove="true"/>
+    <query_thread_log remove="true"/>
+    <text_log remove="true"/>
+    <trace_log remove="true"/>
+
+    <latency_log remove="true"/>
+    <processors_profile_log remove="true"/>
+
+    <metric_log remove="true"/>
+    <asynchronous_metric_log remove="true"/>
+
+    <listen_host>0.0.0.0</listen_host>
+
+</clickhouse>
+EOF
+  echo " done"
+
+  echo -n "[100%] Writing users.xml into users volume..."
+  docker run --rm -i -v infra-clickhouse-db-users:/data alpine sh -c "cat > /data/users.xml" <<EOF >/dev/null 2>&1
+<clickhouse>
+    <profiles>
+        <default>
+            <max_memory_usage>2500000000</max_memory_usage>
+        </default>
+    </profiles>
+</clickhouse>
+EOF
+  echo " done"
+
+  info "ClickHouse configuration created in volumes"
+
+}
+
 # =====[ DEPLOY: Infra stack ]=====
 deploy_infra() {
 
@@ -485,6 +546,8 @@ configure_rabbitmq() {
     scheduler
     content
     company-management
+    finance
+    clickhouse
   )
 
   for USER in "${USERS[@]}"; do
@@ -508,6 +571,8 @@ configure_rabbitmq() {
     scheduler
     content
     company-management
+    finance
+    clickhouse
   )
 
   for USER in "${PERMISSION_USERS[@]}"; do
@@ -556,6 +621,7 @@ wait_crm_containers() {
     "api-gateway"
     "app-auth"
     "binom"
+    "clickhouse"
     "company-management"
     "content"
     "cost-management"
@@ -667,6 +733,7 @@ Database credentials:
 - content: content
 - cost-management: cost
 - finance: finance
+- clickhouse: clickhouse
 
 Encryption Key: ${ENCRYPTION_KEY}
 
@@ -948,6 +1015,9 @@ if [[ "$1" == "uninstall" ]]; then
     infra-content-db
     infra-cost-management-db
     infra-finance-db
+    infra-clickhouse-db
+    infra-clickhouse-db-config
+    infra-clickhouse-db-users
     infra-rabbitmq
     infra-pgadmin
     infra-dozzle
@@ -1001,6 +1071,7 @@ install_docker
 create_network
 create_volumes
 generate_secrets
+configure_clickhouse
 configure_dozzle
 configure_proxy
 configure_pgadmin
@@ -1044,6 +1115,7 @@ echo -e "company-management:       ${BRIGHT_BLUE}company${RESET}"
 echo -e "content:                  ${BRIGHT_BLUE}content${RESET}"
 echo -e "cost-management:          ${BRIGHT_BLUE}cost${RESET}"
 echo -e "finance:                  ${BRIGHT_BLUE}finance${RESET}"
+echo -e "clickhouse:               ${BRIGHT_BLUE}clickhouse${RESET}"
 echo
 info "Encryption Key: ${ENCRYPTION_KEY}"
 echo
