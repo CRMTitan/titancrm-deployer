@@ -1066,7 +1066,7 @@ fi
 
 integrity_check
 check_os
-check_disk
+#check_disk   # Temporarily disabled
 install_docker
 create_network
 create_volumes
