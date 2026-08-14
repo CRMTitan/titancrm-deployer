@@ -10,6 +10,17 @@ if [[ -t 1 ]]; then
   echo
 fi
 
+# =====[ OUTPUT: Deployment log ]=====
+
+LOG_FILE="$(dirname "$0")/deploy.log"
+
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "========================================"
+echo "TitanCRM deployer started: $(date '+%Y-%m-%d %H:%M:%S')"
+echo "========================================"
+echo
+
 # =====[ COLORS ]=====
 GREEN="\e[32m"
 RED="\e[31m"
@@ -155,8 +166,8 @@ check_disk() {
 
   FREE_SPACE=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
 
-  if [[ "$FREE_SPACE" -lt 120 ]]; then
-    error "At least 120GB of free disk space is required"
+  if [[ "$FREE_SPACE" -lt 180 ]]; then
+    error "At least 180GB of free disk space is required"
   fi
 
   info "Disk space OK (${FREE_SPACE}GB available)"
@@ -443,7 +454,7 @@ EOF
 <clickhouse>
     <profiles>
         <default>
-            <max_memory_usage>3000000000</max_memory_usage>
+            <max_memory_usage>2500000000</max_memory_usage>
         </default>
     </profiles>
 </clickhouse>
@@ -535,6 +546,8 @@ configure_rabbitmq() {
     scheduler
     content
     company-management
+    finance
+    clickhouse
   )
 
   for USER in "${USERS[@]}"; do
@@ -558,6 +571,8 @@ configure_rabbitmq() {
     scheduler
     content
     company-management
+    finance
+    clickhouse
   )
 
   for USER in "${PERMISSION_USERS[@]}"; do

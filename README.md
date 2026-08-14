@@ -57,6 +57,8 @@ Type 'deploy' to continue
 
 After completion, all service URLs and credentials will be displayed.
 
+> 💡 **Deployment logs:** Every execution of the deployer is automatically recorded in the `deploy.log` file next to the `deploy.sh` script. Each run is marked with a timestamp and includes the complete script output. The log can be used to track deployment activity and troubleshoot installation, upgrade, or other deployment issues.
+
 ---
 
 ## Requirements
@@ -68,7 +70,7 @@ After completion, all service URLs and credentials will be displayed.
 
 ### Hardware
 
-- Minimum: 120 GB disk
+- Minimum: 180 GB disk
 - Recommended: 4 CPU / 8 GB RAM
 
 > ⚠️ **Disk space notice:** We recommend keeping sufficient free disk space beyond the minimum. Updates of microservices and general CRM operation require extra space to ensure smooth deployment and proper functioning of all services.
