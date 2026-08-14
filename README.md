@@ -277,12 +277,16 @@ Open your log service:
 https://DOZZLE_DOMAIN
 ```
 
-or
-
-Use docker:
+or check container logs directly:
 
 ```bash
 docker logs <container_name>
+```
+
+Follow logs in real time:
+
+```bash
+docker logs -f <container_name>
 ```
 
 Check running containers:
@@ -291,13 +295,20 @@ Check running containers:
 docker ps
 ```
 
+Check all containers, including stopped ones:
+
+```bash
+docker ps -a
+```
+
 Common issues:
 
-- Incorrect or incomplete [.env](https://github.com/CRMTitan/titancrm-deployer#configuration-env) configuration — make sure all required variables are set and valid
-- Domains not pointing to server
-- Ports 80/443 closed
-- Services still starting
-- Cloudflare proxy enabled — temporarily disable proxy (set DNS to "DNS only") to allow Let's Encrypt to issue certificates
+- Incorrect or incomplete [.env](https://github.com/CRMTitan/titancrm-deployer#configuration-env) configuration - make sure all required variables are set and valid
+- Domains not pointing to server - verify that DNS records point to the server's public IP address
+- Ports 80/443 are closed - make sure HTTP and HTTPS traffic is allowed by the server firewall and cloud provider
+- Services are still starting - some services may require several minutes before they become fully available
+- Let's Encrypt rate limit - repeated certificate requests may temporarily prevent new certificates from being issued
+- Cloudflare proxy enabled - temporarily disable the proxy by setting the DNS record to DNS only to allow Let's Encrypt to issue certificates
 
 ---
 
