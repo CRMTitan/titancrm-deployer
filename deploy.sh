@@ -476,10 +476,15 @@ deploy_infra() {
   fi
 
   echo
-  info "[1/2] Pulling Docker images..."
-  docker compose -f infra.yaml -p infra pull
+  info "[1/3] Validating stack..."
+  docker compose -f infra.yaml -p infra config --quiet
 
   echo
+  info "[2/3] Pulling Docker images..."
+  echo
+  docker compose --progress=tty -f infra.yaml -p infra pull
+
+echo
   info "Waiting 10 seconds before starting infra services..."
   for i in {10..1}; do
     echo -ne "Starting in $i seconds...\r"
@@ -488,8 +493,9 @@ deploy_infra() {
   echo
 
   echo
-  info "[2/2] Starting infra services..."
-  docker compose -f infra.yaml -p infra up -d
+  info "[3/3] Starting infra services..."
+  echo
+  docker compose --progress=tty -f infra.yaml -p infra up -d
 
   echo
   info "Infra stack successfully deployed"
@@ -596,8 +602,13 @@ deploy_crm() {
   fi
 
   echo
-  info "[1/2] Pulling Docker images..."
-  docker compose -f crm.yaml -p crm pull
+  info "[1/3] Validating stack..."
+  docker compose -f crm.yaml -p crm config --quiet
+
+  echo
+  info "[2/3] Pulling Docker images..."
+  echo
+  docker compose --progress=tty -f crm.yaml -p crm pull
 
   echo
   info "Waiting 10 seconds before starting services..."
@@ -608,8 +619,9 @@ deploy_crm() {
   echo
 
   echo
-  info "[2/2] Starting CRM services..."
-  docker compose -f crm.yaml -p crm up -d
+  info "[3/3] Starting CRM services..."
+  echo
+  docker compose --progress=tty -f crm.yaml -p crm up -d
 
   echo
   info "CRM stack successfully deployed"
@@ -675,8 +687,13 @@ deploy_proxy() {
   fi
 
   echo
-  info "[1/2] Pulling Docker images..."
-  docker compose -f proxy.yaml -p proxy pull
+  info "[1/3] Validating stack..."
+  docker compose -f proxy.yaml -p proxy config --quiet
+
+  echo
+  info "[2/3] Pulling Docker images..."
+  echo
+  docker compose --progress=tty -f proxy.yaml -p proxy pull
 
   echo
   info "Waiting 10 seconds before starting proxy services..."
@@ -687,12 +704,14 @@ deploy_proxy() {
   echo
 
   echo
-  info "[2/2] Starting proxy services..."
-  docker compose -f proxy.yaml -p proxy up -d
+  info "[3/3] Starting proxy services..."
+  echo
+  docker compose --progress=tty -f proxy.yaml -p proxy up -d
 
   echo
   info "Proxy stack successfully deployed"
 }
+
 
 # =====[ LOAD: Environment variables ]=====
 load_env() {
