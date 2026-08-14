@@ -14,6 +14,7 @@ fi
 
 LOG_FILE="$(dirname "$0")/deploy.log"
 
+exec 3>&1
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 echo "========================================"
@@ -1087,6 +1088,7 @@ deploy_done
 
 echo
 info "TitanCRM is ready!"
+exec 1>&3
 echo
 info "Services have started, but it may take a few minutes for:"
 echo "- Let's Encrypt certificates to be issued"
@@ -1095,8 +1097,6 @@ echo "- All services to be fully ready and reachable"
 echo
 info "Once the process completes, you can access your services at:"
 echo
-exec 3>&1 4>&2
-exec >/dev/tty 2>&1
 echo -e "${BRIGHT_RED}Frontend:${RESET}                 ${BRIGHT_GREEN}https://${FRONTEND_DOMAIN}${RESET}"
 echo -e "login: ${BRIGHT_BLUE}${SEED_ADMIN_EMAIL}${RESET} ${BRIGHT_RED}|${RESET} password: ${BRIGHT_BLUE}${SEED_ADMIN_PASSWORD}${RESET}"
 echo
