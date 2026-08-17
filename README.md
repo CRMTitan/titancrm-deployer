@@ -70,8 +70,10 @@ After completion, all service URLs and credentials will be displayed.
 
 ### Hardware
 
+Minumum:
+
 - Instance: 4 CPU / 8 GB RAM
-- Free space: ~80 GB (initial deployment)
+- Free space: 100 GB
 
 > ⚠️ **Disk space notice:** Sufficient free disk space is required for reliable CRM operation and future updates. During a CRM update, new Docker images are downloaded before the previous images are removed, which temporarily increases disk usage. Database storage also grows as the CRM accumulates data over time. Running out of disk space can cause failed updates, database problems, or service interruptions. We strongly recommend keeping a reasonable amount of free space available at all times.
 
