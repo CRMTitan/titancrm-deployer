@@ -167,8 +167,8 @@ check_disk() {
 
   FREE_SPACE=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
 
-  if [[ "$FREE_SPACE" -lt 180 ]]; then
-    error "At least 180GB of free disk space is required"
+  if [[ "$FREE_SPACE" -lt 100 ]]; then
+    error "At least 100GB of free disk space is required"
   fi
 
   info "Disk space OK (${FREE_SPACE}GB available)"
@@ -299,8 +299,8 @@ generate_secrets() {
   upper=$(tr -dc 'A-Z' </dev/urandom | head -c 1)
   lower=$(tr -dc 'a-z' </dev/urandom | head -c 1)
   digit=$(tr -dc '0-9' </dev/urandom | head -c 1)
-  special=$(tr -dc '!@#$%^&*' </dev/urandom | head -c 1)
-  rest=$(tr -dc 'A-Za-z0-9!@#$%^&*' </dev/urandom | head -c 12)
+  special=$(tr -dc '!@#%^&*' </dev/urandom | head -c 1)
+  rest=$(tr -dc 'A-Za-z0-9!@#%^&*' </dev/urandom | head -c 12)
   SEED_ADMIN_PASSWORD=$(echo "$upper$lower$digit$special$rest" | fold -w1 | shuf | tr -d '\n')
   safe_password=$(printf '%s\n' "$SEED_ADMIN_PASSWORD" | sed 's/[&/\\"]/\\&/g')
   sed -i "s|^\([[:space:]]*\)SEED_ADMIN_PASSWORD:.*|\1SEED_ADMIN_PASSWORD: \"$safe_password\"|" crm.yaml
@@ -476,10 +476,15 @@ deploy_infra() {
   fi
 
   echo
-  info "[1/2] Pulling Docker images..."
-  docker compose -f infra.yaml -p infra pull
+  info "[1/3] Validating stack..."
+  docker compose -f infra.yaml -p infra config --quiet
 
   echo
+  info "[2/3] Pulling Docker images..."
+  echo
+  docker compose --progress=tty -f infra.yaml -p infra pull
+
+echo
   info "Waiting 10 seconds before starting infra services..."
   for i in {10..1}; do
     echo -ne "Starting in $i seconds...\r"
@@ -488,8 +493,9 @@ deploy_infra() {
   echo
 
   echo
-  info "[2/2] Starting infra services..."
-  docker compose -f infra.yaml -p infra up -d
+  info "[3/3] Starting infra services..."
+  echo
+  docker compose --progress=tty -f infra.yaml -p infra up -d
 
   echo
   info "Infra stack successfully deployed"
@@ -596,8 +602,13 @@ deploy_crm() {
   fi
 
   echo
-  info "[1/2] Pulling Docker images..."
-  docker compose -f crm.yaml -p crm pull
+  info "[1/3] Validating stack..."
+  docker compose -f crm.yaml -p crm config --quiet
+
+  echo
+  info "[2/3] Pulling Docker images..."
+  echo
+  docker compose --progress=tty -f crm.yaml -p crm pull
 
   echo
   info "Waiting 10 seconds before starting services..."
@@ -608,8 +619,9 @@ deploy_crm() {
   echo
 
   echo
-  info "[2/2] Starting CRM services..."
-  docker compose -f crm.yaml -p crm up -d
+  info "[3/3] Starting CRM services..."
+  echo
+  docker compose --progress=tty -f crm.yaml -p crm up -d
 
   echo
   info "CRM stack successfully deployed"
@@ -675,8 +687,13 @@ deploy_proxy() {
   fi
 
   echo
-  info "[1/2] Pulling Docker images..."
-  docker compose -f proxy.yaml -p proxy pull
+  info "[1/3] Validating stack..."
+  docker compose -f proxy.yaml -p proxy config --quiet
+
+  echo
+  info "[2/3] Pulling Docker images..."
+  echo
+  docker compose --progress=tty -f proxy.yaml -p proxy pull
 
   echo
   info "Waiting 10 seconds before starting proxy services..."
@@ -687,12 +704,14 @@ deploy_proxy() {
   echo
 
   echo
-  info "[2/2] Starting proxy services..."
-  docker compose -f proxy.yaml -p proxy up -d
+  info "[3/3] Starting proxy services..."
+  echo
+  docker compose --progress=tty -f proxy.yaml -p proxy up -d
 
   echo
   info "Proxy stack successfully deployed"
 }
+
 
 # =====[ LOAD: Environment variables ]=====
 load_env() {
@@ -775,7 +794,7 @@ if [[ "$1" == "crm-upgrade" ]]; then
 
   echo
   info "Pulling CRM images..."
-  docker compose -f crm.yaml -p crm pull
+  docker compose --progress=tty -f crm.yaml -p crm pull
 
   echo
   info "Restarting containers in 10 seconds..."
@@ -787,12 +806,12 @@ if [[ "$1" == "crm-upgrade" ]]; then
 
   echo
   info "Starting updated containers..."
-  docker compose -f crm.yaml -p crm up -d
+  docker compose --progress=tty -f crm.yaml -p crm up -d
 
   echo
   info "Cleaning up old CRM images..."
 
-  CRM_IMAGES=$(docker compose -f crm.yaml -p crm images -q | sort -u)
+  CRM_IMAGES=$(docker compose --progress=tty -f crm.yaml -p crm images -q | sort -u)
 
   if [[ -n "$CRM_IMAGES" ]]; then
     for IMAGE_ID in $CRM_IMAGES; do
@@ -933,11 +952,11 @@ if [[ "$1" == "crm-redeploy" ]]; then
 
   echo
   info "Stopping and removing containers..."
-  docker compose -f crm.yaml -p crm down
+  docker compose --progress=tty -f crm.yaml -p crm down
 
   echo
   info "Starting containers..."
-  docker compose -f crm.yaml -p crm up -d
+  docker compose --progress=tty -f crm.yaml -p crm up -d
 
   echo
   info "CRM stack successfully redeployed"
@@ -956,7 +975,7 @@ if [[ "$1" == "crm-stop" ]]; then
     error "crm.yaml not found in current directory"
   fi
 
-  docker compose -f crm.yaml -p crm stop
+  docker compose --progress=tty -f crm.yaml -p crm stop
 
   info "CRM stack stopped"
 
@@ -974,7 +993,7 @@ if [[ "$1" == "crm-start" ]]; then
     error "crm.yaml not found in current directory"
   fi
 
-  docker compose -f crm.yaml -p crm start
+  docker compose --progress=tty -f crm.yaml -p crm start
 
   info "CRM stack started"
 
@@ -995,15 +1014,15 @@ if [[ "$1" == "uninstall" ]]; then
 
   echo
   info "Stopping and removing CRM stack..."
-  docker compose -f crm.yaml -p crm down --volumes --remove-orphans || true
+  docker compose --progress=tty -f crm.yaml -p crm down --volumes --remove-orphans || true
 
   echo
   info "Stopping and removing Infra stack..."
-  docker compose -f infra.yaml -p infra down --volumes --remove-orphans || true
+  docker compose --progress=tty -f infra.yaml -p infra down --volumes --remove-orphans || true
 
   echo
   info "Stopping and removing Proxy stack..."
-  docker compose -f proxy.yaml -p proxy down --volumes --remove-orphans || true
+  docker compose --progress=tty -f proxy.yaml -p proxy down --volumes --remove-orphans || true
 
   echo
   info "Removing TitanCRM docker network..."
@@ -1067,7 +1086,7 @@ fi
 
 integrity_check
 check_os
-#check_disk   # Temporarily disabled
+check_disk
 install_docker
 create_network
 create_volumes
