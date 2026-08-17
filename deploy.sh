@@ -167,8 +167,8 @@ check_disk() {
 
   FREE_SPACE=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
 
-  if [[ "$FREE_SPACE" -lt 180 ]]; then
-    error "At least 180GB of free disk space is required"
+  if [[ "$FREE_SPACE" -lt 100 ]]; then
+    error "At least 100GB of free disk space is required"
   fi
 
   info "Disk space OK (${FREE_SPACE}GB available)"
@@ -1086,7 +1086,7 @@ fi
 
 integrity_check
 check_os
-#check_disk   # Temporarily disabled
+check_disk
 install_docker
 create_network
 create_volumes
