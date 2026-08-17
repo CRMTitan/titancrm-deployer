@@ -174,6 +174,49 @@ check_disk() {
   info "Disk space OK (${FREE_SPACE}GB available)"
 }
 
+# =====[ CHECK: DNS configuration ]=====
+check_dns_records() {
+
+  info "Checking DNS configuration..."
+
+  local server_ip
+  server_ip=$(curl -4 -fsS https://api.ipify.org) || \
+    error "Failed to determine server public IP address"
+
+  info "Server public IP: ${server_ip}"
+
+  local domain_variables=(
+    "FRONTEND_DOMAIN"
+    "BACKEND_DOMAIN"
+    "RABBITMQ_DOMAIN"
+    "PGADMIN_DOMAIN"
+    "DOZZLE_DOMAIN"
+  )
+
+  local variable
+  local domain
+  local dns_ip
+
+  for variable in "${domain_variables[@]}"; do
+
+    domain=$(grep -E "^${variable}=" .env | cut -d '=' -f2-)
+
+    info "Checking DNS: ${domain}"
+
+    dns_ip=$(dig +short A "$domain" | head -n1)
+
+    if [[ -z "$dns_ip" ]]; then
+      error "DNS record not found for ${domain}"
+    fi
+
+    if [[ "$dns_ip" != "$server_ip" ]]; then
+      error "DNS mismatch for ${domain}: resolves to ${dns_ip}, expected ${server_ip}"
+    fi
+
+    info "DNS check passed: ${domain} -> ${dns_ip}"
+  done
+}
+
 # =====[ SETUP: Docker installation ]=====
 install_docker() {
 
@@ -1087,6 +1130,7 @@ fi
 integrity_check
 check_os
 check_disk
+check_dns_records
 install_docker
 create_network
 create_volumes
