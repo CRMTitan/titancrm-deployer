@@ -277,8 +277,8 @@ generate_secrets() {
   RABBITMQ_ADMIN_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
 
   # Infra PGAdmin admin password
-  PGADMIN_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
-  sed -i "s|PGADMIN_DEFAULT_PASSWORD:.*|PGADMIN_DEFAULT_PASSWORD: \"$PGADMIN_PASSWORD\"|g" infra.yaml
+  PGADMIN_DEFAULT_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
+  sed -i "s|^PGADMIN_DEFAULT_PASSWORD=.*|PGADMIN_DEFAULT_PASSWORD=\"$PGADMIN_DEFAULT_PASSWORD\"|" .env
 
   # Infra Dozzle admin password
   DOZZLE_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
@@ -286,14 +286,13 @@ generate_secrets() {
   # CRM JWT tokens
   JWT_ACCESS_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 128)
   JWT_REFRESH_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 128)
-  safe_access=$(printf '%s\n' "$JWT_ACCESS_SECRET" | sed 's/[&/\\"]/\\&/g')
-  safe_refresh=$(printf '%s\n' "$JWT_REFRESH_SECRET" | sed 's/[&/\\"]/\\&/g')
-  sed -i "s|^\([[:space:]]*\)JWT_ACCESS_SECRET:.*|\1JWT_ACCESS_SECRET: \"$safe_access\"|" crm.yaml
-  sed -i "s|^\([[:space:]]*\)JWT_REFRESH_SECRET:.*|\1JWT_REFRESH_SECRET: \"$safe_refresh\"|" crm.yaml
+
+  sed -i "s|^JWT_ACCESS_SECRET=.*|JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET|" .env
+  sed -i "s|^JWT_REFRESH_SECRET=.*|JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET|" .env
 
   # CRM encryption key
   ENCRYPTION_KEY=$(openssl rand -hex 32)
-  sed -i "s|^\([[:space:]]*\)ENCRYPTION_KEY:.*|\1ENCRYPTION_KEY: \"$ENCRYPTION_KEY\"|" crm.yaml
+  sed -i "s|^ENCRYPTION_KEY=.*|ENCRYPTION_KEY=$ENCRYPTION_KEY|" .env
 
   # CRM admin password
   upper=$(tr -dc 'A-Z' </dev/urandom | head -c 1)
@@ -301,9 +300,10 @@ generate_secrets() {
   digit=$(tr -dc '0-9' </dev/urandom | head -c 1)
   special=$(tr -dc '!@#%^&*' </dev/urandom | head -c 1)
   rest=$(tr -dc 'A-Za-z0-9!@#%^&*' </dev/urandom | head -c 12)
+
   SEED_ADMIN_PASSWORD=$(echo "$upper$lower$digit$special$rest" | fold -w1 | shuf | tr -d '\n')
-  safe_password=$(printf '%s\n' "$SEED_ADMIN_PASSWORD" | sed 's/[&/\\"]/\\&/g')
-  sed -i "s|^\([[:space:]]*\)SEED_ADMIN_PASSWORD:.*|\1SEED_ADMIN_PASSWORD: \"$safe_password\"|" crm.yaml
+
+  sed -i "s|^SEED_ADMIN_PASSWORD=.*|SEED_ADMIN_PASSWORD=\"$SEED_ADMIN_PASSWORD\"|" .env
 
   info "Secrets generated"
 
