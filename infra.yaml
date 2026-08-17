@@ -14,6 +14,12 @@ x-postgres: &postgres
   <<: *infra-common
   image: postgres:17.6
 
+x-postgres-healthcheck: &postgres-healthcheck
+  test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+  interval: 10s
+  timeout: 5s
+  retries: 5
+
 services:
 
   company-management-instance:
@@ -25,6 +31,7 @@ services:
       POSTGRES_DB: company-management
     volumes:
       - infra-company-management-db:/var/lib/postgresql/data
+    healthcheck: *postgres-healthcheck
 
   content-instance:
     <<: *postgres
@@ -35,6 +42,7 @@ services:
       POSTGRES_DB: content
     volumes:
       - infra-content-db:/var/lib/postgresql/data
+    healthcheck: *postgres-healthcheck
 
   cost-management-instance:
     <<: *postgres
@@ -45,6 +53,7 @@ services:
       POSTGRES_DB: cost-management
     volumes:
       - infra-cost-management-db:/var/lib/postgresql/data
+    healthcheck: *postgres-healthcheck
 
   finance-instance:
     <<: *postgres
@@ -55,6 +64,7 @@ services:
       POSTGRES_DB: finance
     volumes:
       - infra-finance-db:/var/lib/postgresql/data
+    healthcheck: *postgres-healthcheck
 
   clickhouse-instance:
     <<: *infra-common
@@ -74,6 +84,11 @@ services:
         hard: 262144
     mem_limit: 3.5g
     cpus: 1.5
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
     <<: *infra-common
@@ -86,6 +101,11 @@ services:
       VIRTUAL_HOST: "${RABBITMQ_DOMAIN}"
       LETSENCRYPT_HOST: "${RABBITMQ_DOMAIN}"
       VIRTUAL_PORT: 15672
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   dozzle:
     <<: *infra-common

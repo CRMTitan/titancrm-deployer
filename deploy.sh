@@ -794,7 +794,7 @@ if [[ "$1" == "crm-upgrade" ]]; then
 
   echo
   info "Pulling CRM images..."
-  docker compose -f crm.yaml -p crm pull
+  docker compose --progress=tty -f crm.yaml -p crm pull
 
   echo
   info "Restarting containers in 10 seconds..."
@@ -806,12 +806,12 @@ if [[ "$1" == "crm-upgrade" ]]; then
 
   echo
   info "Starting updated containers..."
-  docker compose -f crm.yaml -p crm up -d
+  docker compose --progress=tty -f crm.yaml -p crm up -d
 
   echo
   info "Cleaning up old CRM images..."
 
-  CRM_IMAGES=$(docker compose -f crm.yaml -p crm images -q | sort -u)
+  CRM_IMAGES=$(docker compose --progress=tty -f crm.yaml -p crm images -q | sort -u)
 
   if [[ -n "$CRM_IMAGES" ]]; then
     for IMAGE_ID in $CRM_IMAGES; do
@@ -952,11 +952,11 @@ if [[ "$1" == "crm-redeploy" ]]; then
 
   echo
   info "Stopping and removing containers..."
-  docker compose -f crm.yaml -p crm down
+  docker compose --progress=tty -f crm.yaml -p crm down
 
   echo
   info "Starting containers..."
-  docker compose -f crm.yaml -p crm up -d
+  docker compose --progress=tty -f crm.yaml -p crm up -d
 
   echo
   info "CRM stack successfully redeployed"
@@ -975,7 +975,7 @@ if [[ "$1" == "crm-stop" ]]; then
     error "crm.yaml not found in current directory"
   fi
 
-  docker compose -f crm.yaml -p crm stop
+  docker compose --progress=tty -f crm.yaml -p crm stop
 
   info "CRM stack stopped"
 
@@ -993,7 +993,7 @@ if [[ "$1" == "crm-start" ]]; then
     error "crm.yaml not found in current directory"
   fi
 
-  docker compose -f crm.yaml -p crm start
+  docker compose --progress=tty -f crm.yaml -p crm start
 
   info "CRM stack started"
 
@@ -1014,15 +1014,15 @@ if [[ "$1" == "uninstall" ]]; then
 
   echo
   info "Stopping and removing CRM stack..."
-  docker compose -f crm.yaml -p crm down --volumes --remove-orphans || true
+  docker compose --progress=tty -f crm.yaml -p crm down --volumes --remove-orphans || true
 
   echo
   info "Stopping and removing Infra stack..."
-  docker compose -f infra.yaml -p infra down --volumes --remove-orphans || true
+  docker compose --progress=tty -f infra.yaml -p infra down --volumes --remove-orphans || true
 
   echo
   info "Stopping and removing Proxy stack..."
-  docker compose -f proxy.yaml -p proxy down --volumes --remove-orphans || true
+  docker compose --progress=tty -f proxy.yaml -p proxy down --volumes --remove-orphans || true
 
   echo
   info "Removing TitanCRM docker network..."
