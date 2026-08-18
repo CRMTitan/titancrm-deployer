@@ -1198,7 +1198,7 @@ fi
 integrity_check
 check_os
 check_disk
-check_system_resources()
+check_system_resources
 check_dns_records
 install_docker
 create_network
