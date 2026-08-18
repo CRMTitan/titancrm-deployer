@@ -160,20 +160,6 @@ check_os() {
   info "Ubuntu 24.04 detected"
 }
 
-# # =====[ CHECK: Disk space ]=====
-# check_disk() {
-
-#   info "Checking available disk space..."
-
-#   FREE_SPACE=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
-
-#   if [[ "$FREE_SPACE" -lt 100 ]]; then
-#     error "At least 100GB of free disk space is required"
-#   fi
-
-#   info "Disk space OK (${FREE_SPACE}GB available)"
-# }
-
 # =====[ CHECK: Disk space ]=====
 check_disk() {
 
@@ -223,7 +209,6 @@ check_system_resources() {
   if (( total_ram_mb <= 6144 )); then
     echo
     warn "Only ${total_ram_mb}MB of RAM is available."
-    warn "More than 6GB of RAM is required to deploy and run TitanCRM."
     warn "8GB of RAM is recommended for reliable TitanCRM operation."
     echo
     has_warning=true
