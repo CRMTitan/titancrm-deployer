@@ -160,18 +160,86 @@ check_os() {
   info "Ubuntu 24.04 detected"
 }
 
+# # =====[ CHECK: Disk space ]=====
+# check_disk() {
+
+#   info "Checking available disk space..."
+
+#   FREE_SPACE=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
+
+#   if [[ "$FREE_SPACE" -lt 100 ]]; then
+#     error "At least 100GB of free disk space is required"
+#   fi
+
+#   info "Disk space OK (${FREE_SPACE}GB available)"
+# }
+
 # =====[ CHECK: Disk space ]=====
 check_disk() {
 
   info "Checking available disk space..."
 
-  FREE_SPACE=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
+  local free_space
+  free_space=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
 
-  if [[ "$FREE_SPACE" -lt 100 ]]; then
-    error "At least 100GB of free disk space is required"
+  if (( free_space < 50 )); then
+    error "At least 50GB of free disk space is required to deploy and run TitanCRM"
   fi
 
-  info "Disk space OK (${FREE_SPACE}GB available)"
+  if (( free_space < 120 )); then
+    echo
+    warn "Only ${free_space}GB of free disk space is available."
+    warn "At least 120GB of free disk space is recommended for reliable TitanCRM operation."
+    warn "Disk space requirements may increase during CRM upgrades and as database data grows."
+    echo
+    read -r -p "Press Enter to continue at your own risk, or Ctrl+C to cancel..."
+  fi
+
+  info "Disk space check completed (${free_space}GB available)"
+}
+
+# =====[ CHECK: CPU & RAM ]=====
+check_system_resources() {
+    local cpu_cores
+    local total_ram_mb
+    local has_warning=false
+
+    cpu_cores=$(nproc)
+    total_ram_mb=$(free -m | awk '/^Mem:/ {print $2}')
+
+    echo "Checking system resources..."
+    echo ""
+
+    # CPU check
+    if [ "$cpu_cores" -lt 4 ]; then
+        echo "WARNING: Your server has only ${cpu_cores} CPU core(s)."
+        echo "TitanCRM requires at least 4 CPU cores for proper operation."
+        echo ""
+        has_warning=true
+    else
+        echo "CPU: ${cpu_cores} cores - OK"
+    fi
+
+    # RAM check
+    if [ "$total_ram_mb" -le 6144 ]; then
+        echo "WARNING: Your server has only ${total_ram_mb} MB of RAM."
+        echo "TitanCRM requires more than 6 GB of RAM for proper operation."
+        echo "8 GB of RAM is recommended."
+        echo ""
+        has_warning=true
+    else
+        echo "RAM: ${total_ram_mb} MB - OK"
+    fi
+
+    if [ "$has_warning" = true ]; then
+        echo "WARNING: Your server does not meet the minimum system requirements."
+        echo "You can continue the installation at your own risk."
+        echo ""
+        echo "Press Enter to continue or Ctrl+C to abort."
+        read -r
+    fi
+
+    echo ""
 }
 
 # =====[ CHECK: DNS configuration ]=====
@@ -1130,6 +1198,7 @@ fi
 integrity_check
 check_os
 check_disk
+check_system_resources()
 check_dns_records
 install_docker
 create_network
