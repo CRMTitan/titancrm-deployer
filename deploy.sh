@@ -200,46 +200,40 @@ check_disk() {
 
 # =====[ CHECK: CPU & RAM ]=====
 check_system_resources() {
-    local cpu_cores
-    local total_ram_mb
-    local has_warning=false
 
-    cpu_cores=$(nproc)
-    total_ram_mb=$(free -m | awk '/^Mem:/ {print $2}')
+  info "Checking system resources..."
 
-    echo "Checking system resources..."
-    echo ""
+  local cpu_cores
+  local total_ram_mb
+  local has_warning=false
 
-    # CPU check
-    if [ "$cpu_cores" -lt 4 ]; then
-        echo "WARNING: Your server has only ${cpu_cores} CPU core(s)."
-        echo "TitanCRM requires at least 4 CPU cores for proper operation."
-        echo ""
-        has_warning=true
-    else
-        echo "CPU: ${cpu_cores} cores - OK"
-    fi
+  cpu_cores=$(nproc)
+  total_ram_mb=$(free -m | awk '/^Mem:/ {print $2}')
 
-    # RAM check
-    if [ "$total_ram_mb" -le 6144 ]; then
-        echo "WARNING: Your server has only ${total_ram_mb} MB of RAM."
-        echo "TitanCRM requires more than 6 GB of RAM for proper operation."
-        echo "8 GB of RAM is recommended."
-        echo ""
-        has_warning=true
-    else
-        echo "RAM: ${total_ram_mb} MB - OK"
-    fi
+  # CPU check
+  if (( cpu_cores < 4 )); then
+    echo
+    warn "Only ${cpu_cores} CPU core(s) are available."
+    warn "At least 4 CPU cores are required to deploy and run TitanCRM."
+    echo
+    has_warning=true
+  fi
 
-    if [ "$has_warning" = true ]; then
-        echo "WARNING: Your server does not meet the minimum system requirements."
-        echo "You can continue the installation at your own risk."
-        echo ""
-        echo "Press Enter to continue or Ctrl+C to abort."
-        read -r
-    fi
+  # RAM check
+  if (( total_ram_mb <= 6144 )); then
+    echo
+    warn "Only ${total_ram_mb}MB of RAM is available."
+    warn "More than 6GB of RAM is required to deploy and run TitanCRM."
+    warn "8GB of RAM is recommended for reliable TitanCRM operation."
+    echo
+    has_warning=true
+  fi
 
-    echo ""
+  if [ "$has_warning" = true ]; then
+    read -r -p "Press Enter to continue at your own risk, or Ctrl+C to cancel..."
+  fi
+
+  info "System resources check completed (${cpu_cores} CPU cores, ${total_ram_mb}MB RAM)"
 }
 
 # =====[ CHECK: DNS configuration ]=====
