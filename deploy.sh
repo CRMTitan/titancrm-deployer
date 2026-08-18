@@ -836,7 +836,7 @@ Log Console:      https://${DOZZLE_DOMAIN}
 login: admin | password: ${DOZZLE_PASSWORD}
 
 Database Console: https://${PGADMIN_DOMAIN}
-login: ${SEED_ADMIN_EMAIL} | password: ${PGADMIN_PASSWORD}
+login: ${SEED_ADMIN_EMAIL} | password: ${PGADMIN_DEFAULT_PASSWORD}
 
 Database credentials:
 - company-management: company
@@ -1220,7 +1220,7 @@ echo -e "${BRIGHT_RED}Log Console:${RESET}              ${BRIGHT_GREEN}https://$
 echo -e "login: ${BRIGHT_BLUE}admin${RESET} ${BRIGHT_RED}|${RESET} password: ${BRIGHT_BLUE}${DOZZLE_PASSWORD}${RESET}"
 echo
 echo -e "${BRIGHT_RED}Database Console:${RESET}         ${BRIGHT_GREEN}https://${PGADMIN_DOMAIN}${RESET}"
-echo -e "login: ${BRIGHT_BLUE}${SEED_ADMIN_EMAIL}${RESET} ${BRIGHT_RED}|${RESET} password: ${BRIGHT_BLUE}${PGADMIN_PASSWORD}${RESET}"
+echo -e "login: ${BRIGHT_BLUE}${SEED_ADMIN_EMAIL}${RESET} ${BRIGHT_RED}|${RESET} password: ${BRIGHT_BLUE}${PGADMIN_DEFAULT_PASSWORD}${RESET}"
 echo
 info "Database credentials:"
 echo
