@@ -165,13 +165,103 @@ check_disk() {
 
   info "Checking available disk space..."
 
-  FREE_SPACE=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
+  local free_space
+  free_space=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
 
-  if [[ "$FREE_SPACE" -lt 100 ]]; then
-    error "At least 100GB of free disk space is required"
+  if (( free_space < 50 )); then
+    error "At least 50GB of free disk space is required to deploy and run TitanCRM"
   fi
 
-  info "Disk space OK (${FREE_SPACE}GB available)"
+  if (( free_space < 120 )); then
+    echo
+    warn "Only ${free_space}GB of free disk space is available."
+    warn "At least 120GB of free disk space is recommended for reliable TitanCRM operation."
+    warn "Disk space requirements may increase during CRM upgrades and as database data grows."
+    echo
+    read -r -p "Press Enter to continue at your own risk, or Ctrl+C to cancel..."
+  fi
+
+  info "Disk space check completed (${free_space}GB available)"
+}
+
+# =====[ CHECK: CPU & RAM ]=====
+check_system_resources() {
+
+  info "Checking system resources..."
+
+  local cpu_cores
+  local total_ram_mb
+  local has_warning=false
+
+  cpu_cores=$(nproc)
+  total_ram_mb=$(free -m | awk '/^Mem:/ {print $2}')
+
+  # CPU check
+  if (( cpu_cores < 4 )); then
+    echo
+    warn "Only ${cpu_cores} CPU core(s) are available."
+    warn "At least 4 CPU cores are required to deploy and run TitanCRM."
+    echo
+    has_warning=true
+  fi
+
+  # RAM check
+  if (( total_ram_mb <= 6144 )); then
+    echo
+    warn "Only ${total_ram_mb}MB of RAM is available."
+    warn "8GB of RAM is recommended for reliable TitanCRM operation."
+    echo
+    has_warning=true
+  fi
+
+  if [ "$has_warning" = true ]; then
+    read -r -p "Press Enter to continue at your own risk, or Ctrl+C to cancel..."
+  fi
+
+  info "System resources check completed (${cpu_cores} CPU cores, ${total_ram_mb}MB RAM)"
+}
+
+# =====[ CHECK: DNS configuration ]=====
+check_dns_records() {
+
+  info "Checking DNS configuration..."
+
+  local server_ip
+  server_ip=$(curl -4 -fsS https://api.ipify.org) || \
+    error "Failed to determine server public IP address"
+
+  info "Server public IP: ${server_ip}"
+
+  local domain_variables=(
+    "FRONTEND_DOMAIN"
+    "BACKEND_DOMAIN"
+    "RABBITMQ_DOMAIN"
+    "PGADMIN_DOMAIN"
+    "DOZZLE_DOMAIN"
+  )
+
+  local variable
+  local domain
+  local dns_ip
+
+  for variable in "${domain_variables[@]}"; do
+
+    domain=$(grep -E "^${variable}=" .env | cut -d '=' -f2-)
+
+    info "Checking DNS: ${domain}"
+
+    dns_ip=$(dig +short A "$domain" | head -n1)
+
+    if [[ -z "$dns_ip" ]]; then
+      error "DNS record not found for ${domain}"
+    fi
+
+    if [[ "$dns_ip" != "$server_ip" ]]; then
+      error "DNS mismatch for ${domain}: resolves to ${dns_ip}, expected ${server_ip}"
+    fi
+
+    info "DNS check passed: ${domain} -> ${dns_ip}"
+  done
 }
 
 # =====[ SETUP: Docker installation ]=====
@@ -277,8 +367,8 @@ generate_secrets() {
   RABBITMQ_ADMIN_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
 
   # Infra PGAdmin admin password
-  PGADMIN_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
-  sed -i "s|PGADMIN_DEFAULT_PASSWORD:.*|PGADMIN_DEFAULT_PASSWORD: \"$PGADMIN_PASSWORD\"|g" infra.yaml
+  PGADMIN_DEFAULT_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
+  sed -i "s|^PGADMIN_DEFAULT_PASSWORD=.*|PGADMIN_DEFAULT_PASSWORD=\"$PGADMIN_DEFAULT_PASSWORD\"|" .env
 
   # Infra Dozzle admin password
   DOZZLE_PASSWORD=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 32)
@@ -286,14 +376,13 @@ generate_secrets() {
   # CRM JWT tokens
   JWT_ACCESS_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 128)
   JWT_REFRESH_SECRET=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 128)
-  safe_access=$(printf '%s\n' "$JWT_ACCESS_SECRET" | sed 's/[&/\\"]/\\&/g')
-  safe_refresh=$(printf '%s\n' "$JWT_REFRESH_SECRET" | sed 's/[&/\\"]/\\&/g')
-  sed -i "s|^\([[:space:]]*\)JWT_ACCESS_SECRET:.*|\1JWT_ACCESS_SECRET: \"$safe_access\"|" crm.yaml
-  sed -i "s|^\([[:space:]]*\)JWT_REFRESH_SECRET:.*|\1JWT_REFRESH_SECRET: \"$safe_refresh\"|" crm.yaml
+
+  sed -i "s|^JWT_ACCESS_SECRET=.*|JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET|" .env
+  sed -i "s|^JWT_REFRESH_SECRET=.*|JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET|" .env
 
   # CRM encryption key
   ENCRYPTION_KEY=$(openssl rand -hex 32)
-  sed -i "s|^\([[:space:]]*\)ENCRYPTION_KEY:.*|\1ENCRYPTION_KEY: \"$ENCRYPTION_KEY\"|" crm.yaml
+  sed -i "s|^ENCRYPTION_KEY=.*|ENCRYPTION_KEY=$ENCRYPTION_KEY|" .env
 
   # CRM admin password
   upper=$(tr -dc 'A-Z' </dev/urandom | head -c 1)
@@ -301,9 +390,10 @@ generate_secrets() {
   digit=$(tr -dc '0-9' </dev/urandom | head -c 1)
   special=$(tr -dc '!@#%^&*' </dev/urandom | head -c 1)
   rest=$(tr -dc 'A-Za-z0-9!@#%^&*' </dev/urandom | head -c 12)
+
   SEED_ADMIN_PASSWORD=$(echo "$upper$lower$digit$special$rest" | fold -w1 | shuf | tr -d '\n')
-  safe_password=$(printf '%s\n' "$SEED_ADMIN_PASSWORD" | sed 's/[&/\\"]/\\&/g')
-  sed -i "s|^\([[:space:]]*\)SEED_ADMIN_PASSWORD:.*|\1SEED_ADMIN_PASSWORD: \"$safe_password\"|" crm.yaml
+
+  sed -i "s|^SEED_ADMIN_PASSWORD=.*|SEED_ADMIN_PASSWORD=\"$SEED_ADMIN_PASSWORD\"|" .env
 
   info "Secrets generated"
 
@@ -746,7 +836,7 @@ Log Console:      https://${DOZZLE_DOMAIN}
 login: admin | password: ${DOZZLE_PASSWORD}
 
 Database Console: https://${PGADMIN_DOMAIN}
-login: ${SEED_ADMIN_EMAIL} | password: ${PGADMIN_PASSWORD}
+login: ${SEED_ADMIN_EMAIL} | password: ${PGADMIN_DEFAULT_PASSWORD}
 
 Database credentials:
 - company-management: company
@@ -1087,6 +1177,8 @@ fi
 integrity_check
 check_os
 check_disk
+check_system_resources
+check_dns_records
 install_docker
 create_network
 create_volumes
@@ -1128,7 +1220,7 @@ echo -e "${BRIGHT_RED}Log Console:${RESET}              ${BRIGHT_GREEN}https://$
 echo -e "login: ${BRIGHT_BLUE}admin${RESET} ${BRIGHT_RED}|${RESET} password: ${BRIGHT_BLUE}${DOZZLE_PASSWORD}${RESET}"
 echo
 echo -e "${BRIGHT_RED}Database Console:${RESET}         ${BRIGHT_GREEN}https://${PGADMIN_DOMAIN}${RESET}"
-echo -e "login: ${BRIGHT_BLUE}${SEED_ADMIN_EMAIL}${RESET} ${BRIGHT_RED}|${RESET} password: ${BRIGHT_BLUE}${PGADMIN_PASSWORD}${RESET}"
+echo -e "login: ${BRIGHT_BLUE}${SEED_ADMIN_EMAIL}${RESET} ${BRIGHT_RED}|${RESET} password: ${BRIGHT_BLUE}${PGADMIN_DEFAULT_PASSWORD}${RESET}"
 echo
 info "Database credentials:"
 echo
