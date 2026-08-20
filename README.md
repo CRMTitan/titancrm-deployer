@@ -73,7 +73,9 @@ After completion, all service URLs and credentials will be displayed.
 Minumum:
 
 - Instance: 4 CPU / 8 GB RAM
-- Free space: 100 GB
+- Free space: **120 GB recommended**
+
+> ⚠️ Initial disk usage: A fresh TitanCRM deployment currently requires approximately 46 GB of disk space. This estimate is based on the current Docker image footprint and initially empty database volumes. Actual disk usage will increase over time as databases and logs grow and new Docker images are downloaded during upgrades.
 
 > ⚠️ **Disk space notice:** Sufficient free disk space is required for reliable CRM operation and future updates. During a CRM update, new Docker images are downloaded before the previous images are removed, which temporarily increases disk usage. Database storage also grows as the CRM accumulates data over time. Running out of disk space can cause failed updates, database problems, or service interruptions. We strongly recommend keeping a reasonable amount of free space available at all times.
 
