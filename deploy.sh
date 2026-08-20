@@ -227,7 +227,10 @@ check_dns_records() {
   info "Checking DNS configuration..."
 
   local server_ip
-  server_ip=$(curl -4 -fsS https://api.ipify.org) || \
+
+  server_ip=$(curl -4 -fsS --max-time 5 https://api.ipify.org) || \
+  server_ip=$(curl -4 -fsS --max-time 5 https://ifconfig.me) || \
+  server_ip=$(curl -4 -fsS --max-time 5 https://icanhazip.com) || \
     error "Failed to determine server public IP address"
 
   info "Server public IP: ${server_ip}"
@@ -262,6 +265,22 @@ check_dns_records() {
 
     info "DNS check passed: ${domain} -> ${dns_ip}"
   done
+}
+
+# =====[ CHECK: Required ports ]=====
+check_ports() {
+
+  info "Checking required web ports..."
+
+  local occupied_ports
+
+  occupied_ports=$(ss -lntH '( sport = :80 or sport = :443 )' 2>/dev/null)
+
+  if [[ -n "$occupied_ports" ]]; then
+    error "Required web ports 80 and/or 443 are already in use"
+  fi
+
+  info "Required web ports 80 and 443 are available"
 }
 
 # =====[ SETUP: Docker installation ]=====
@@ -1179,6 +1198,7 @@ check_os
 check_disk
 check_system_resources
 check_dns_records
+check_ports
 install_docker
 create_network
 create_volumes
