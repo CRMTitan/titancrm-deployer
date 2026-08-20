@@ -79,7 +79,7 @@ Minumum:
 
 ### Network
 
-- Public IP address
+- Public IPv4 address
 - Open ports: 80, 443
 
 ### Domain Configuration Requirements
@@ -94,7 +94,7 @@ Each service endpoint must be resolvable to the server’s public IP address bef
 
 **Required DNS Records**
 
-You must configure DNS A (or AAAA) records for the following services:
+You must configure DNS A records for the following services:
 
 | Domain              | Description       |
 | ------------------- | ----------------- |
@@ -104,18 +104,25 @@ You must configure DNS A (or AAAA) records for the following services:
 | db.yourdomain.ltd   | database UI       |
 | logs.yourdomain.ltd | logs UI           |
 
+**DNS Validation**
+
+The deployment script automatically validates the DNS configuration before starting the deployment.
+
+For each configured domain, the deployer:
+
+- Resolves the domain using DNS
+- Determines the server's public IP address
+- Verifies that the domain resolves to the deployment server's public IP
+- Stops the deployment if a DNS record is missing or points to a different IP address
+
+All required DNS records must therefore be configured and resolvable before starting the deployment.
+
 **Operational Requirements**
 
-- DNS propagation must be completed prior to running the deployment
-- Partial or missing DNS configuration will result in service unavailability
-- The deployment process does not perform DNS provisioning or validation
-- You are responsible for ensuring consistency between configured domains and enabled services
-
-**Important Notice**
-
-⚠️ Failure to configure all required subdomains will lead to incomplete system functionality and may prevent successful deployment or service access.
-
-> ⚠️ **Note:** Missing DNS records can be added after deployment — SSL certificates will be issued automatically.
+- DNS records must point to the public IP address of the deployment server
+- DNS propagation must be completed before running the deployment
+- All required domains must be configured in the .env file
+- If any required domain is missing or resolves to a different IP address, the deployment will be stopped
 
 ---
 
@@ -265,7 +272,7 @@ This will:
 
 - Pull updated Docker images
 - Restart CRM microservices
-- Remove unused CRM images
+- Remove unused old CRM images
 
 ---
 
