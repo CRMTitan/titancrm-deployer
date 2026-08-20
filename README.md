@@ -106,6 +106,8 @@ You must configure DNS A records for the following services:
 | db.yourdomain.ltd   | database UI       |
 | logs.yourdomain.ltd | logs UI           |
 
+**Note:** The domain names above are examples only. You may use any subdomain names you prefer, as long as they are configured in the .env file and point to the deployment server's public IP address.
+
 **DNS Validation**
 
 The deployment script automatically validates the DNS configuration before starting the deployment.
