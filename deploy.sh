@@ -657,34 +657,6 @@ wait_for_infra_services() {
   error "Timeout waiting for infra services to become healthy"
 }
 
-# =====[ WAIT: RabbitMQ readiness ]=====
-# wait_rabbitmq() {
-
-#   info "Waiting for RabbitMQ container..."
-
-#   MAX_ATTEMPTS=30
-#   ATTEMPT=1
-
-#   while true; do
-
-#     if docker exec rabbitmq rabbitmq-diagnostics ping >/dev/null 2>&1; then
-#       info "RabbitMQ is ready"
-#       break
-#     fi
-
-#     if [[ $ATTEMPT -ge $MAX_ATTEMPTS ]]; then
-#       error "RabbitMQ did not become ready in time"
-#     fi
-
-#     warn "RabbitMQ not ready yet... ($ATTEMPT/$MAX_ATTEMPTS)"
-
-#     sleep 30
-#     ((ATTEMPT++))
-
-#   done
-
-# }
-
 # =====[ CONFIGURE: RabbitMQ ]=====
 configure_rabbitmq() {
 
@@ -840,56 +812,6 @@ wait_for_crm_services() {
   error "Timeout waiting for CRM services to become healthy"
 }
 
-# =====[ WAIT: CRM containers ]=====
-# wait_crm_containers() {
-#   CONTAINERS=(
-#     "analytics"
-#     "api-gateway"
-#     "app-auth"
-#     "binom"
-#     "clickhouse"
-#     "company-management"
-#     "content"
-#     "cost-management"
-#     "facebook"
-#     "finance"
-#     "frontend"
-#     "keitaro"
-#     "mail"
-#     "scheduler"
-#     "telegram-bot"
-#   )
-
-#   MAX_ATTEMPTS=30
-#   ATTEMPT=1
-
-#   info "Waiting for all CRM containers to be running..."
-
-#   while true; do
-#     NOT_RUNNING=()
-    
-#     for C in "${CONTAINERS[@]}"; do
-#       STATUS=$(docker inspect --format='{{.State.Status}}' "$C" 2>/dev/null || echo "missing")
-#       if [[ "$STATUS" != "running" ]]; then
-#         NOT_RUNNING+=("$C")
-#       fi
-#     done
-
-#     if [[ ${#NOT_RUNNING[@]} -eq 0 ]]; then
-#       info "All CRM containers are running"
-#       break
-#     fi
-
-#     if [[ $ATTEMPT -ge $MAX_ATTEMPTS ]]; then
-#       error "Some CRM containers did not start in time: ${NOT_RUNNING[*]}"
-#     fi
-
-#     warn "Waiting for containers to start: ${NOT_RUNNING[*]} ($ATTEMPT/$MAX_ATTEMPTS)"
-#     sleep 30
-#     ((ATTEMPT++))
-#   done
-# }
-
 # =====[ DEPLOY: Proxy stack ]=====
 deploy_proxy() {
 
@@ -909,14 +831,6 @@ deploy_proxy() {
   docker compose --progress=tty -f proxy.yaml -p proxy pull
 
   echo
-  info "Waiting 10 seconds before starting proxy services..."
-  for i in {10..1}; do
-    echo -ne "Starting in $i seconds...\r"
-    sleep 1
-  done
-  echo
-
-  echo
   info "[3/3] Starting proxy services..."
   echo
   docker compose --progress=tty -f proxy.yaml -p proxy up -d
@@ -924,7 +838,6 @@ deploy_proxy() {
   echo
   info "Proxy stack successfully deployed"
 }
-
 
 # =====[ LOAD: Environment variables ]=====
 load_env() {
