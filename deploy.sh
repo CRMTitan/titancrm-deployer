@@ -839,7 +839,7 @@ deploy_proxy() {
   info "Proxy stack successfully deployed"
 }
 
-# =====[ CHECK: External SSL certificates ]=====
+# =====[ CHECK: SSL certificates ]=====
 wait_for_ssl_certificates() {
 
   local domain_variables=(
@@ -868,28 +868,23 @@ wait_for_ssl_certificates() {
       local domain
       domain=$(grep -E "^${variable}=" .env | cut -d '=' -f2-)
 
-      local response
-      response=$(curl -sS \
-        --connect-timeout 5 \
-        --max-time 15 \
-        "https://websitedownornot.com/check.php?host=${domain}" \
-        2>/dev/null)
+      [[ -z "$domain" ]] && continue
 
-      if [[ $? -ne 0 || -z "$response" ]]; then
-        warn "External SSL check service is unavailable"
-        return 0
+      if [[ "${domain_status[$domain]}" == "ready" ]]; then
+        continue
       fi
 
-      local verdict
-      local ssl_days
+      if openssl s_client \
+        -connect "${domain}:443" \
+        -servername "$domain" \
+        -verify_hostname "$domain" \
+        -verify_return_error \
+        </dev/null 2>/dev/null |
+        grep -q "Verify return code: 0 (ok)"; then
 
-      verdict=$(echo "$response" | sed -n 's/.*"verdict":"\([^"]*\)".*/\1/p')
-      ssl_days=$(echo "$response" | sed -n 's/.*"ssl":{"days":\([0-9]*\).*/\1/p')
-
-      if [[ "$verdict" == "up" && "$ssl_days" =~ ^[1-9][0-9]*$ && "${domain_status[$domain]}" != "ready" ]]; then
         domain_status[$domain]="ready"
         echo "[ OK ] $domain"
-      elif [[ "$verdict" != "up" || ! "$ssl_days" =~ ^[1-9][0-9]*$ ]]; then
+      else
         all_ready=false
       fi
 
@@ -897,7 +892,7 @@ wait_for_ssl_certificates() {
 
     if [[ "$all_ready" == true ]]; then
       echo
-      info "All SSL certificates are valid and domains are externally accessible"
+      info "All SSL certificates are valid and domains are accessible"
       return 0
     fi
 
@@ -911,7 +906,7 @@ wait_for_ssl_certificates() {
   done
 
   echo
-  warn "SSL certificate validation timed out. Skipping external SSL validation."
+  warn "SSL certificate validation timed out. Skipping SSL validation."
   return 0
 }
 
