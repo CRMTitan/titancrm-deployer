@@ -839,6 +839,84 @@ deploy_proxy() {
   info "Proxy stack successfully deployed"
 }
 
+# =====[ CHECK: External SSL certificates ]=====
+wait_for_ssl_certificates() {
+
+  info "Waiting for SSL certificates to become available..."
+
+  local domain_variables=(
+    "FRONTEND_DOMAIN"
+    "BACKEND_DOMAIN"
+    "RABBITMQ_DOMAIN"
+    "PGADMIN_DOMAIN"
+    "DOZZLE_DOMAIN"
+  )
+
+  local timeout=300
+  local interval=60
+  local elapsed=0
+
+  local variable
+  local domain
+  local response
+  local verdict
+  local ssl_days
+
+  while (( elapsed < timeout )); do
+
+    local all_ready=true
+
+    for variable in "${domain_variables[@]}"; do
+
+      domain=$(grep -E "^${variable}=" .env | cut -d '=' -f2-)
+
+      info "Checking SSL: ${domain}"
+
+      response=$(curl -sS \
+        --connect-timeout 5 \
+        --max-time 15 \
+        "https://websitedownornot.com/check.php?host=${domain}" \
+        2>/dev/null)
+
+      if [[ $? -ne 0 || -z "$response" ]]; then
+        warn "External SSL check service is unavailable"
+        return 0
+      fi
+
+      verdict=$(echo "$response" | sed -n 's/.*"verdict":"\([^"]*\)".*/\1/p')
+      ssl_days=$(echo "$response" | sed -n 's/.*"ssl":{"days":\([0-9]*\).*/\1/p')
+
+      if [[ "$verdict" == "up" && "$ssl_days" =~ ^[1-9][0-9]*$ ]]; then
+        info "SSL check passed: ${domain} (${ssl_days} days remaining)"
+      else
+        all_ready=false
+        info "SSL certificate is not ready: ${domain}"
+      fi
+
+    done
+
+    if [[ "$all_ready" == true ]]; then
+      echo
+      info "All SSL certificates are valid and domains are externally accessible"
+      return 0
+    fi
+
+    if (( elapsed + interval >= timeout )); then
+      break
+    fi
+
+    echo
+    info "Waiting ${interval} seconds before retrying SSL checks..."
+    sleep "$interval"
+    ((elapsed += interval))
+
+  done
+
+  echo
+  warn "SSL certificate validation timed out. Skipping external SSL validation."
+  return 0
+}
+
 # =====[ LOAD: Environment variables ]=====
 load_env() {
   ENV_FILE=".env"
@@ -1230,6 +1308,7 @@ configure_rabbitmq
 deploy_crm
 wait_for_crm_services
 deploy_proxy
+wait_for_ssl_certificates
 load_env
 save_credentials
 deploy_done
