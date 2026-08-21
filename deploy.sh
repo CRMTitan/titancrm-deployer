@@ -842,8 +842,6 @@ deploy_proxy() {
 # =====[ CHECK: External SSL certificates ]=====
 wait_for_ssl_certificates() {
 
-  info "Waiting for SSL certificates to become available..."
-
   local domain_variables=(
     "FRONTEND_DOMAIN"
     "BACKEND_DOMAIN"
@@ -856,11 +854,10 @@ wait_for_ssl_certificates() {
   local interval=60
   local elapsed=0
 
-  local variable
-  local domain
-  local response
-  local verdict
-  local ssl_days
+  info "Waiting for SSL certificates to become available..."
+  echo
+
+  declare -A domain_status
 
   while (( elapsed < timeout )); do
 
@@ -868,10 +865,10 @@ wait_for_ssl_certificates() {
 
     for variable in "${domain_variables[@]}"; do
 
+      local domain
       domain=$(grep -E "^${variable}=" .env | cut -d '=' -f2-)
 
-      info "Checking SSL: ${domain}"
-
+      local response
       response=$(curl -sS \
         --connect-timeout 5 \
         --max-time 15 \
@@ -883,14 +880,17 @@ wait_for_ssl_certificates() {
         return 0
       fi
 
+      local verdict
+      local ssl_days
+
       verdict=$(echo "$response" | sed -n 's/.*"verdict":"\([^"]*\)".*/\1/p')
       ssl_days=$(echo "$response" | sed -n 's/.*"ssl":{"days":\([0-9]*\).*/\1/p')
 
-      if [[ "$verdict" == "up" && "$ssl_days" =~ ^[1-9][0-9]*$ ]]; then
-        info "SSL check passed: ${domain} (${ssl_days} days remaining)"
-      else
+      if [[ "$verdict" == "up" && "$ssl_days" =~ ^[1-9][0-9]*$ && "${domain_status[$domain]}" != "ready" ]]; then
+        domain_status[$domain]="ready"
+        echo "[ OK ] $domain"
+      elif [[ "$verdict" != "up" || ! "$ssl_days" =~ ^[1-9][0-9]*$ ]]; then
         all_ready=false
-        info "SSL certificate is not ready: ${domain}"
       fi
 
     done
@@ -905,8 +905,6 @@ wait_for_ssl_certificates() {
       break
     fi
 
-    echo
-    info "Waiting ${interval} seconds before retrying SSL checks..."
     sleep "$interval"
     ((elapsed += interval))
 
