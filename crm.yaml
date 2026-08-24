@@ -180,6 +180,8 @@ services:
       BINOM_CLIENT_PORT: "4200"
       FINANCE_CLIENT_HOST: "finance"
       FINANCE_CLIENT_PORT: "4200"
+      COST_MANAGEMENT_CLIENT_HOST: "cost-management"
+      COST_MANAGEMENT_CLIENT_PORT: "4200"
       CLICKHOUSE_DB_HOST: "clickhouse-db"
       CLICKHOUSE_DB_PORT: "8123"
       CLICKHOUSE_DB_DATABASE: "clickhouse"
