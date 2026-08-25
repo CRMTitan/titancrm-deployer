@@ -994,16 +994,11 @@ if [[ "$1" == "crm-upgrade" ]]; then
   docker compose --progress=tty -f crm.yaml -p crm pull
 
   echo
-  info "Restarting containers in 10 seconds..."
-  for i in {10..1}; do
-    echo -ne "Restarting in $i seconds...   \r"
-    sleep 1
-  done
-  echo
-
-  echo
   info "Starting updated containers..."
   docker compose --progress=tty -f crm.yaml -p crm up -d
+
+  echo
+  wait_for_crm_services
 
   echo
   info "Cleaning up old CRM images..."
@@ -1156,6 +1151,9 @@ if [[ "$1" == "crm-redeploy" ]]; then
   docker compose --progress=tty -f crm.yaml -p crm up -d
 
   echo
+  wait_for_crm_services
+
+  echo
   info "CRM stack successfully redeployed"
 
   exit 0
@@ -1191,6 +1189,9 @@ if [[ "$1" == "crm-start" ]]; then
   fi
 
   docker compose --progress=tty -f crm.yaml -p crm start
+
+  echo
+  wait_for_crm_services  
 
   info "CRM stack started"
 
