@@ -593,14 +593,6 @@ deploy_infra() {
   echo
   docker compose --progress=tty -f infra.yaml -p infra pull
 
-echo
-  info "Waiting 10 seconds before starting infra services..."
-  for i in {10..1}; do
-    echo -ne "Starting in $i seconds...\r"
-    sleep 1
-  done
-  echo
-
   echo
   info "[3/3] Starting infra services..."
   echo
@@ -610,32 +602,59 @@ echo
   info "Infra stack successfully deployed"
 }
 
-# =====[ WAIT: RabbitMQ readiness ]=====
-wait_rabbitmq() {
+# =====[ CHECK: Infra services health ]=====
+wait_for_infra_services() {
 
-  info "Waiting for RabbitMQ container..."
+  local services=(
+    "company-management-db"
+    "content-db"
+    "cost-management-db"
+    "finance-db"
+    "clickhouse-db"
+    "rabbitmq"
+  )
 
-  MAX_ATTEMPTS=30
-  ATTEMPT=1
+  local timeout=300
+  local interval=5
+  local elapsed=0
 
-  while true; do
+  info "Waiting for infra services to become healthy..."
+  echo
 
-    if docker exec rabbitmq rabbitmq-diagnostics ping >/dev/null 2>&1; then
-      info "RabbitMQ is ready"
-      break
+  declare -A service_status
+
+  while (( elapsed < timeout )); do
+
+    local all_healthy=true
+
+    for service in "${services[@]}"; do
+
+      local health
+      health=$(docker inspect \
+        --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' \
+        "$service" 2>/dev/null)
+
+      if [[ "$health" == "healthy" && "${service_status[$service]}" != "healthy" ]]; then
+        service_status[$service]="healthy"
+        echo "[ OK ] $service"
+      elif [[ "$health" != "healthy" ]]; then
+        all_healthy=false
+      fi
+
+    done
+
+    if [[ "$all_healthy" == true ]]; then
+      echo
+      info "All required infra services are healthy"
+      return 0
     fi
 
-    if [[ $ATTEMPT -ge $MAX_ATTEMPTS ]]; then
-      error "RabbitMQ did not become ready in time"
-    fi
-
-    warn "RabbitMQ not ready yet... ($ATTEMPT/$MAX_ATTEMPTS)"
-
-    sleep 30
-    ((ATTEMPT++))
-
+    sleep "$interval"
+    ((elapsed += interval))
   done
 
+  echo
+  error "Timeout waiting for infra services to become healthy"
 }
 
 # =====[ CONFIGURE: RabbitMQ ]=====
@@ -720,14 +739,6 @@ deploy_crm() {
   docker compose --progress=tty -f crm.yaml -p crm pull
 
   echo
-  info "Waiting 10 seconds before starting services..."
-  for i in {10..1}; do
-    echo -ne "Starting in $i seconds...\r"
-    sleep 1
-  done
-  echo
-
-  echo
   info "[3/3] Starting CRM services..."
   echo
   docker compose --progress=tty -f crm.yaml -p crm up -d
@@ -736,9 +747,10 @@ deploy_crm() {
   info "CRM stack successfully deployed"
 }
 
-# =====[ WAIT: CRM containers ]=====
-wait_crm_containers() {
-  CONTAINERS=(
+# =====[ CHECK: CRM services health ]=====
+wait_for_crm_services() {
+
+  local services=(
     "analytics"
     "api-gateway"
     "app-auth"
@@ -756,34 +768,48 @@ wait_crm_containers() {
     "telegram-bot"
   )
 
-  MAX_ATTEMPTS=30
-  ATTEMPT=1
+  local timeout=300
+  local interval=5
+  local elapsed=0
 
-  info "Waiting for all CRM containers to be running..."
+  info "Waiting for CRM services to become healthy..."
+  info "Some services may be running database migrations. Please wait..."
+  echo
 
-  while true; do
-    NOT_RUNNING=()
-    
-    for C in "${CONTAINERS[@]}"; do
-      STATUS=$(docker inspect --format='{{.State.Status}}' "$C" 2>/dev/null || echo "missing")
-      if [[ "$STATUS" != "running" ]]; then
-        NOT_RUNNING+=("$C")
+  declare -A service_status
+
+  while (( elapsed < timeout )); do
+
+    local all_healthy=true
+
+    for service in "${services[@]}"; do
+
+      local health
+      health=$(docker inspect \
+        --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' \
+        "$service" 2>/dev/null)
+
+      if [[ "$health" == "healthy" && "${service_status[$service]}" != "healthy" ]]; then
+        service_status[$service]="healthy"
+        echo "[ OK ] $service"
+      elif [[ "$health" != "healthy" ]]; then
+        all_healthy=false
       fi
+
     done
 
-    if [[ ${#NOT_RUNNING[@]} -eq 0 ]]; then
-      info "All CRM containers are running"
-      break
+    if [[ "$all_healthy" == true ]]; then
+      echo
+      info "All required CRM services are healthy"
+      return 0
     fi
 
-    if [[ $ATTEMPT -ge $MAX_ATTEMPTS ]]; then
-      error "Some CRM containers did not start in time: ${NOT_RUNNING[*]}"
-    fi
-
-    warn "Waiting for containers to start: ${NOT_RUNNING[*]} ($ATTEMPT/$MAX_ATTEMPTS)"
-    sleep 30
-    ((ATTEMPT++))
+    sleep "$interval"
+    ((elapsed += interval))
   done
+
+  echo
+  error "Timeout waiting for CRM services to become healthy"
 }
 
 # =====[ DEPLOY: Proxy stack ]=====
@@ -805,14 +831,6 @@ deploy_proxy() {
   docker compose --progress=tty -f proxy.yaml -p proxy pull
 
   echo
-  info "Waiting 10 seconds before starting proxy services..."
-  for i in {10..1}; do
-    echo -ne "Starting in $i seconds...\r"
-    sleep 1
-  done
-  echo
-
-  echo
   info "[3/3] Starting proxy services..."
   echo
   docker compose --progress=tty -f proxy.yaml -p proxy up -d
@@ -821,6 +839,76 @@ deploy_proxy() {
   info "Proxy stack successfully deployed"
 }
 
+# =====[ CHECK: SSL certificates ]=====
+wait_for_ssl_certificates() {
+
+  local domain_variables=(
+    "FRONTEND_DOMAIN"
+    "BACKEND_DOMAIN"
+    "RABBITMQ_DOMAIN"
+    "PGADMIN_DOMAIN"
+    "DOZZLE_DOMAIN"
+  )
+
+  local timeout=300
+  local interval=60
+  local elapsed=0
+
+  info "Waiting for SSL certificates to become available..."
+  echo
+
+  declare -A domain_status
+
+  while (( elapsed < timeout )); do
+
+    local all_ready=true
+
+    for variable in "${domain_variables[@]}"; do
+
+      local domain
+      domain=$(grep -E "^${variable}=" .env | cut -d '=' -f2-)
+
+      [[ -z "$domain" ]] && continue
+
+      if [[ "${domain_status[$domain]}" == "ready" ]]; then
+        continue
+      fi
+
+      if openssl s_client \
+        -connect "${domain}:443" \
+        -servername "$domain" \
+        -verify_hostname "$domain" \
+        -verify_return_error \
+        </dev/null 2>/dev/null |
+        grep -q "Verify return code: 0 (ok)"; then
+
+        domain_status[$domain]="ready"
+        echo "[ OK ] $domain"
+      else
+        all_ready=false
+      fi
+
+    done
+
+    if [[ "$all_ready" == true ]]; then
+      echo
+      info "All SSL certificates are valid and domains are accessible"
+      return 0
+    fi
+
+    if (( elapsed + interval >= timeout )); then
+      break
+    fi
+
+    sleep "$interval"
+    ((elapsed += interval))
+
+  done
+
+  echo
+  warn "SSL certificate validation timed out. Skipping SSL validation."
+  return 0
+}
 
 # =====[ LOAD: Environment variables ]=====
 load_env() {
@@ -906,16 +994,11 @@ if [[ "$1" == "crm-upgrade" ]]; then
   docker compose --progress=tty -f crm.yaml -p crm pull
 
   echo
-  info "Restarting containers in 10 seconds..."
-  for i in {10..1}; do
-    echo -ne "Restarting in $i seconds...   \r"
-    sleep 1
-  done
-  echo
-
-  echo
   info "Starting updated containers..."
   docker compose --progress=tty -f crm.yaml -p crm up -d
+
+  echo
+  wait_for_crm_services
 
   echo
   info "Cleaning up old CRM images..."
@@ -1068,6 +1151,9 @@ if [[ "$1" == "crm-redeploy" ]]; then
   docker compose --progress=tty -f crm.yaml -p crm up -d
 
   echo
+  wait_for_crm_services
+
+  echo
   info "CRM stack successfully redeployed"
 
   exit 0
@@ -1103,6 +1189,9 @@ if [[ "$1" == "crm-start" ]]; then
   fi
 
   docker compose --progress=tty -f crm.yaml -p crm start
+
+  echo
+  wait_for_crm_services  
 
   info "CRM stack started"
 
@@ -1208,11 +1297,12 @@ configure_dozzle
 configure_proxy
 configure_pgadmin
 deploy_infra
-wait_rabbitmq
+wait_for_infra_services
 configure_rabbitmq
 deploy_crm
-wait_crm_containers
+wait_for_crm_services
 deploy_proxy
+wait_for_ssl_certificates
 load_env
 save_credentials
 deploy_done
