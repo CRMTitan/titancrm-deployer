@@ -1338,6 +1338,7 @@ info "TitanCRM is ready!"
 exec 1>&3
 echo
 info "Services have started, but it may take a few minutes for:"
+echo
 echo "- Let's Encrypt certificates to be issued"
 echo "- Nginx proxy to configure the domains"
 echo "- All services to be fully ready and reachable"
