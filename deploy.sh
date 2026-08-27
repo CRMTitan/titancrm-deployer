@@ -657,6 +657,31 @@ wait_for_infra_services() {
   error "Timeout waiting for infra services to become healthy"
 }
 
+# =====[ WAIT: RabbitMQ readiness ]=====
+wait_for_rabbitmq() {
+
+  info "Waiting for RabbitMQ application to become ready..."
+
+  local max_attempts=30
+  local attempt=1
+
+  while (( attempt <= max_attempts )); do
+
+    if docker exec rabbitmq rabbitmq-diagnostics ping >/dev/null 2>&1; then
+      echo "[ OK ] RabbitMQ application is ready"
+      return 0
+    fi
+
+    warn "RabbitMQ application is not ready yet... ($attempt/$max_attempts)"
+
+    sleep 10
+    ((attempt++))
+
+  done
+
+  error "RabbitMQ application did not become ready within 5 minutes"
+}
+
 # =====[ CONFIGURE: RabbitMQ ]=====
 configure_rabbitmq() {
 
@@ -1298,6 +1323,7 @@ configure_proxy
 configure_pgadmin
 deploy_infra
 wait_for_infra_services
+wait_for_rabbitmq
 configure_rabbitmq
 deploy_crm
 wait_for_crm_services
