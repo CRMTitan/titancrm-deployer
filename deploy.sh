@@ -567,6 +567,14 @@ EOF
             <max_memory_usage>2500000000</max_memory_usage>
         </default>
     </profiles>
+    <users>
+        <clickhouse>
+            <grants>
+                <query>GRANT ALL ON clickhouse.*</query>
+                <query>GRANT KILL QUERY ON *.*</query>
+            </grants>
+        </clickhouse>
+    </users>
 </clickhouse>
 EOF
   echo " done"
@@ -655,6 +663,27 @@ wait_for_infra_services() {
 
   echo
   error "Timeout waiting for infra services to become healthy"
+}
+
+# =====[ CHECK: ClickHouse healthy after restart ]=====
+wait_for_clickhouse() {
+
+  local timeout=300
+  local interval=5
+  local elapsed=0
+
+  info "Waiting for clickhouse-db to become healthy..."
+
+  while (( elapsed < timeout )); do
+    if [[ "$(docker inspect --format '{{.State.Health.Status}}' clickhouse-db 2>/dev/null)" == "healthy" ]]; then
+      info "clickhouse-db is healthy"
+      return 0
+    fi
+    sleep "$interval"
+    ((elapsed += interval))
+  done
+
+  error "Timeout waiting for clickhouse-db to become healthy"
 }
 
 # =====[ WAIT: RabbitMQ readiness ]=====
@@ -1013,6 +1042,12 @@ if [[ "$1" == "crm-upgrade" ]]; then
   if [[ ! -f crm.yaml ]]; then
     error "crm.yaml not found in current directory"
   fi
+
+  echo
+  # Re-applies users.xml grants for installs upgraded from before this existed.
+  configure_clickhouse
+  docker restart clickhouse-db
+  wait_for_clickhouse
 
   echo
   info "Pulling CRM images..."
