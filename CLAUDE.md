@@ -1,11 +1,11 @@
-# TitanCRM Deployer — Claude Context
+# TitanTrack Deployer — Claude Context
 
 ## General
 
-- **Purpose:** Single-command self-hosted installer for TitanCRM — clients run `./deploy.sh` on a clean Ubuntu 24.04 server
+- **Purpose:** Single-command self-hosted installer for TitanTrack — clients run `./deploy.sh` on a clean Ubuntu 24.04 server
 - **Runtime:** Docker Compose; three stacks deployed in order: `infra.yaml` → `crm.yaml` → `proxy.yaml`
 - **Infra stack:** PostgreSQL (4 databases), RabbitMQ, pgAdmin, Dozzle
-- **CRM stack:** all TitanCRM microservices + frontend; images `ihorcrm/<service>:<tag>`; tag controlled by `CRM_IMAGE_TAG` in `crm.yaml`
+- **CRM stack:** all TitanTrack microservices + frontend; images `ihorcrm/<service>:<tag>`; tag controlled by `CRM_IMAGE_TAG` in `crm.yaml`
 - **Proxy stack:** nginx-proxy + letsencrypt-companion — routes by `VIRTUAL_HOST` env var, issues SSL automatically
 - **Network:** all containers share `titan-crm-network` Docker bridge
 - **Secrets:** generated at deploy time by `deploy.sh` via `openssl rand` / `/dev/urandom`, injected into yaml files via `sed`, saved to `credentials.txt`

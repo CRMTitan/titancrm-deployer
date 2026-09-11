@@ -1,8 +1,8 @@
-# TitanCRM Deployment Guide
+# TitanTrack Deployment Guide
 
 ## Overview
 
-TitanCRM Deployer is a one-command script that installs a full production-ready TitanCRM stack on a clean server.
+TitanTrack Deployer is a one-command script that installs a full production-ready TitanTrack stack on a clean server.
 
 It automatically:
 
@@ -18,7 +18,7 @@ It automatically:
 > ⚠️ **Compatibility:** The deployer is designed for **Ubuntu Server 24.04 LTS**.  
 > Full support and stable operation are guaranteed only on this version.
 
-Connect to your server via SSH, then clone the TitanCRM deployer repository:
+Connect to your server via SSH, then clone the TitanTrack deployer repository:
 
 ```bash
 cd ~
@@ -75,9 +75,9 @@ Minumum:
 - Instance: 4 CPU / 8 GB RAM
 - Free space: **120 GB recommended**
 
-> ⚠️ **Initial disk usage:** A fresh TitanCRM deployment currently requires approximately 46 GB of disk space. This estimate is based on the current Docker image footprint and initially empty database volumes. Actual disk usage will increase over time as databases and logs grow and new Docker images are downloaded during upgrades.
+> ⚠️ **Initial disk usage:** A fresh TitanTrack deployment currently requires approximately 46 GB of disk space. This estimate is based on the current Docker image footprint and initially empty database volumes. Actual disk usage will increase over time as databases and logs grow and new Docker images are downloaded during upgrades.
 
-> ⚠️ **Disk space notice:** Sufficient free disk space is required for reliable CRM operation and future updates. During a CRM update, new Docker images are downloaded before the previous images are removed, which temporarily increases disk usage. Database storage also grows as the CRM accumulates data over time. Running out of disk space can cause failed updates, database problems, or service interruptions. We strongly recommend keeping a reasonable amount of free space available at all times.
+> ⚠️ **Disk space notice:** Sufficient free disk space is required for reliable TitanTrack operation and future updates. During a TitanTrack update, new Docker images are downloaded before the previous images are removed, which temporarily increases disk usage. Database storage also grows as TitanTrack accumulates data over time. Running out of disk space can cause failed updates, database problems, or service interruptions. We strongly recommend keeping a reasonable amount of free space available at all times.
 
 ### Network
 
@@ -132,7 +132,7 @@ All required DNS records must therefore be configured and resolvable before star
 
 ## Configuration (.env)
 
-Set your valid email for CRM login:
+Set your valid email for TitanTrack login:
 
 ```bash
 SEED_ADMIN_EMAIL=email@yourdomain.ltd
@@ -150,7 +150,7 @@ DOZZLE_DOMAIN=logs.yourdomain.ltd
 
 ### Facebook Auth Proxy
 
-> ⚠️ You must provide your frontend domain (e.g. `yourdomain.ltd`) to the TitanCRM team to enable Facebook authentication. Please note that configuration may take some time. Without this, Facebook authentication will not work correctly.
+> ⚠️ You must provide your frontend domain (e.g. `yourdomain.ltd`) to the TitanTrack team to enable Facebook authentication. Please note that configuration may take some time. Without this, Facebook authentication will not work correctly.
 
 ### External services required
 
@@ -164,14 +164,14 @@ DOZZLE_DOMAIN=logs.yourdomain.ltd
 
 ## What Gets Deployed
 
-The deployment provisions a full TitanCRM stack, including:
+The deployment provisions a full TitanTrack stack, including:
 
 - **Core services**
   - PostgreSQL databases
   - RabbitMQ message broker
 
 - **Application layer**
-  - TitanCRM microservices
+  - TitanTrack microservices
 
 - **Management & observability**
   - pgAdmin (database management UI)
@@ -187,7 +187,7 @@ The deployment provisions a full TitanCRM stack, including:
 1. Validate system prerequisites
 2. Prepare Docker environment
 3. Deploy infrastructure (DB, RabbitMQ, etc.)
-4. Deploy TitanCRM microservices
+4. Deploy TitanTrack microservices
 5. Configure edge layer
 
 The entire process is fully automated.
@@ -219,22 +219,22 @@ Credentials are generated automatically and stored in `credentials.txt`.
 ./deploy.sh <command>
 ```
 
-| Command                     | Description                                                                     |
-| --------------------------- | ------------------------------------------------------------------------------- |
-| help                        | Show available commands                                                         |
-| crm-upgrade                 | Update CRM services                                                             |
-| crm-redeploy                | Recreate CRM services                                                           |
-| crm-stop                    | Stop CRM services                                                               |
-| crm-start                   | Start CRM services                                                              |
-| crm-tag-get                 | Show current CRM image tag                                                      |
-| crm-tag-set `tag` [--force] | Set new CRM image tag (requires upgrade). Use --force to bypass version checks. |
-| uninstall                   | Remove everything (⚠️ data loss)                                                |
+| Command                     | Description                                                                            |
+| --------------------------- | -------------------------------------------------------------------------------------- |
+| help                        | Show available commands                                                                |
+| crm-upgrade                 | Update TitanTrack services                                                             |
+| crm-redeploy                | Recreate TitanTrack services                                                           |
+| crm-stop                    | Stop TitanTrack services                                                               |
+| crm-start                   | Start TitanTrack services                                                              |
+| crm-tag-get                 | Show current TitanTrack image tag                                                      |
+| crm-tag-set `tag` [--force] | Set new TitanTrack image tag (requires upgrade). Use --force to bypass version checks. |
+| uninstall                   | Remove everything (⚠️ data loss)                                                       |
 
 ---
 
-## CRM Update
+## TitanTrack Update
 
-TitanCRM uses versioned Docker image tags to manage CRM updates.
+TitanTrack uses versioned Docker image tags to manage updates.
 
 ### Step 1: Set a new image tag
 
@@ -266,7 +266,7 @@ You can override version checks using the `--force` flag:
 
 ### Step 2: Apply the update
 
-After setting the tag, apply changes by upgrading the CRM stack:
+After setting the tag, apply changes by upgrading TitanTrack:
 
 ```bash
 ./deploy.sh crm-upgrade
@@ -275,8 +275,8 @@ After setting the tag, apply changes by upgrading the CRM stack:
 This will:
 
 - Pull updated Docker images
-- Restart CRM microservices
-- Remove unused old CRM images
+- Restart TitanTrack microservices
+- Remove unused old TitanTrack images
 
 ---
 
@@ -328,7 +328,7 @@ Common issues:
 ## Architecture
 
 - **Proxy**: Nginx + Let's Encrypt
-- **Application**: TitanCRM microservices
+- **Application**: TitanTrack microservices
 - **Infrastructure**: PostgreSQL, ClickHouse, RabbitMQ, pgAdmin, Dozzle
 
 All services run in Docker and communicate via a private network.

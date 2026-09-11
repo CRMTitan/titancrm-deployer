@@ -5,7 +5,7 @@ set -e
 # =====[ INIT: Clear screen ]=====
 if [[ -t 1 ]]; then
   printf "\033c"
-  echo -e "\e[92m🚀 TitanCRM Deployment Tool\e[0m"
+  echo -e "\e[92m🚀 TitanTrack Deployment Tool\e[0m"
   echo -e "\e[90m----------------------------------\e[0m"
   echo
 fi
@@ -18,7 +18,7 @@ exec 3>&1
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 echo "========================================"
-echo "TitanCRM deployer started: $(date '+%Y-%m-%d %H:%M:%S')"
+echo "TitanTrack deployer started: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================"
 echo
 
@@ -56,7 +56,7 @@ error() {
 confirm_deploy() {
 
   echo
-  warn "This action will deploy TitanCRM on this server."
+  warn "This action will deploy TitanTrack on this server."
   warn "Existing containers, networks and volumes may be modified."
   echo
 
@@ -76,7 +76,7 @@ deploy_start() {
   info "Checking deployment status..."
   echo
   if [[ -f "$FINAL_MARKER" ]]; then
-    error "TitanCRM has already been deployed on this server.
+    error "TitanTrack has already been deployed on this server.
 
 A previous installation was completed successfully.
 
@@ -88,7 +88,7 @@ Proceed only if you understand the implications.
   fi
 
   if [[ -f "$MARKER_FILE" ]]; then
-    error "Detected an incomplete TitanCRM deployment.
+    error "Detected an incomplete TitanTrack deployment.
 
 A previous installation was interrupted (manually or due to an error).
 The system may be in an inconsistent state.
@@ -169,14 +169,14 @@ check_disk() {
   free_space=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
 
   if (( free_space < 50 )); then
-    error "At least 50GB of free disk space is required to deploy and run TitanCRM"
+    error "At least 50GB of free disk space is required to deploy and run TitanTrack"
   fi
 
   if (( free_space < 120 )); then
     echo
     warn "Only ${free_space}GB of free disk space is available."
-    warn "At least 120GB of free disk space is recommended for reliable TitanCRM operation."
-    warn "Disk space requirements may increase during CRM upgrades and as database data grows."
+    warn "At least 120GB of free disk space is recommended for reliable TitanTrack operation."
+    warn "Disk space requirements may increase during TitanTrack upgrades and as database data grows."
     echo
     read -r -p "Press Enter to continue at your own risk, or Ctrl+C to cancel..."
   fi
@@ -200,7 +200,7 @@ check_system_resources() {
   if (( cpu_cores < 4 )); then
     echo
     warn "Only ${cpu_cores} CPU core(s) are available."
-    warn "At least 4 CPU cores are required to deploy and run TitanCRM."
+    warn "At least 4 CPU cores are required to deploy and run TitanTrack."
     echo
     has_warning=true
   fi
@@ -209,7 +209,7 @@ check_system_resources() {
   if (( total_ram_mb <= 6144 )); then
     echo
     warn "Only ${total_ram_mb}MB of RAM is available."
-    warn "8GB of RAM is recommended for reliable TitanCRM operation."
+    warn "8GB of RAM is recommended for reliable TitanTrack operation."
     echo
     has_warning=true
   fi
@@ -777,7 +777,7 @@ configure_rabbitmq() {
 # =====[ DEPLOY: CRM stack ]=====
 deploy_crm() {
 
-  info "Deploying CRM docker stack..."
+  info "Deploying TitanTrack docker stack..."
 
   if [[ ! -f crm.yaml ]]; then
     error "crm.yaml not found in current directory"
@@ -793,12 +793,12 @@ deploy_crm() {
   docker compose --progress=tty -f crm.yaml -p crm pull
 
   echo
-  info "[3/3] Starting CRM services..."
+  info "[3/3] Starting TitanTrack services..."
   echo
   docker compose --progress=tty -f crm.yaml -p crm up -d
 
   echo
-  info "CRM stack successfully deployed"
+  info "TitanTrack stack successfully deployed"
 }
 
 # =====[ CHECK: CRM services health ]=====
@@ -826,7 +826,7 @@ wait_for_crm_services() {
   local interval=5
   local elapsed=0
 
-  info "Waiting for CRM services to become healthy..."
+  info "Waiting for TitanTrack services to become healthy..."
   info "Some services may be running database migrations. Please wait..."
   echo
 
@@ -854,7 +854,7 @@ wait_for_crm_services() {
 
     if [[ "$all_healthy" == true ]]; then
       echo
-      info "All required CRM services are healthy"
+      info "All required TitanTrack services are healthy"
       return 0
     fi
 
@@ -863,7 +863,7 @@ wait_for_crm_services() {
   done
 
   echo
-  error "Timeout waiting for CRM services to become healthy"
+  error "Timeout waiting for TitanTrack services to become healthy"
 }
 
 # =====[ DEPLOY: Proxy stack ]=====
@@ -1037,7 +1037,7 @@ fi
 # -------------------------------
 if [[ "$1" == "crm-upgrade" ]]; then
 
-  info "Upgrading CRM stack..."
+  info "Upgrading TitanTrack stack..."
 
   if [[ ! -f crm.yaml ]]; then
     error "crm.yaml not found in current directory"
@@ -1050,7 +1050,7 @@ if [[ "$1" == "crm-upgrade" ]]; then
   wait_for_clickhouse
 
   echo
-  info "Pulling CRM images..."
+  info "Pulling TitanTrack images..."
   docker compose --progress=tty -f crm.yaml -p crm pull
 
   echo
@@ -1061,7 +1061,7 @@ if [[ "$1" == "crm-upgrade" ]]; then
   wait_for_crm_services
 
   echo
-  info "Cleaning up old CRM images..."
+  info "Cleaning up old TitanTrack images..."
 
   CRM_IMAGES=$(docker compose --progress=tty -f crm.yaml -p crm images -q | sort -u)
 
@@ -1075,7 +1075,7 @@ if [[ "$1" == "crm-upgrade" ]]; then
   fi
 
   echo
-  info "CRM stack successfully upgraded"
+  info "TitanTrack stack successfully upgraded"
 
   exit 0
 fi
@@ -1096,7 +1096,7 @@ if [[ "$1" == "crm-tag-get" ]]; then
   fi
 
   echo
-  info "Current CRM image tag: $TAG"
+  info "Current TitanTrack image tag: $TAG"
   echo
 
   exit 0
@@ -1159,7 +1159,7 @@ if [[ "${1:-}" == "crm-tag-set" ]]; then
 Current version: $CURRENT_TAG
 Requested version: $NEW_TAG ⚠️
 
-⚠️  Downgrading CRM is not allowed as it may lead to data inconsistency
+⚠️  Downgrading TitanTrack is not allowed as it may lead to data inconsistency
 and unpredictable system behavior.
 
 If you really need to proceed, run:
@@ -1178,14 +1178,14 @@ If you really need to proceed, run:
   fi
 
   echo
-  info "Updating CRM image tags to: $NEW_TAG..."
+  info "Updating TitanTrack image tags to: $NEW_TAG..."
 
   sed -i -E "s|^([[:space:]]*image: .+):[^[:space:]]+|\1:${NEW_TAG}|" crm.yaml
 
   sed -i -E "s|^( *CRM_IMAGE_TAG:\s*)\"[^\"]*\"|\1\"${NEW_TAG}\"|g" crm.yaml
 
   info "Tags successfully updated."
-  info "You can now upgrade the CRM stack using: ./deploy.sh crm-upgrade"
+  info "You can now upgrade TitanTrack using: ./deploy.sh crm-upgrade"
   echo
 
   exit 0
@@ -1196,7 +1196,7 @@ fi
 # -------------------------------
 if [[ "$1" == "crm-redeploy" ]]; then
 
-  info "Redeploy CRM stack..."
+  info "Redeploy TitanTrack stack..."
 
   if [[ ! -f crm.yaml ]]; then
     error "crm.yaml not found in current directory"
@@ -1214,7 +1214,7 @@ if [[ "$1" == "crm-redeploy" ]]; then
   wait_for_crm_services
 
   echo
-  info "CRM stack successfully redeployed"
+  info "TitanTrack stack successfully redeployed"
 
   exit 0
 fi
@@ -1224,7 +1224,7 @@ fi
 # -------------------------------
 if [[ "$1" == "crm-stop" ]]; then
 
-  info "Stopping CRM stack..."
+  info "Stopping TitanTrack stack..."
 
   if [[ ! -f crm.yaml ]]; then
     error "crm.yaml not found in current directory"
@@ -1232,7 +1232,7 @@ if [[ "$1" == "crm-stop" ]]; then
 
   docker compose --progress=tty -f crm.yaml -p crm stop
 
-  info "CRM stack stopped"
+  info "TitanTrack stack stopped"
 
   exit 0
 fi
@@ -1242,7 +1242,7 @@ fi
 # -------------------------------
 if [[ "$1" == "crm-start" ]]; then
 
-  info "Starting CRM stack..."
+  info "Starting TitanTrack stack..."
 
   if [[ ! -f crm.yaml ]]; then
     error "crm.yaml not found in current directory"
@@ -1253,7 +1253,7 @@ if [[ "$1" == "crm-start" ]]; then
   echo
   wait_for_crm_services  
 
-  info "CRM stack started"
+  info "TitanTrack stack started"
 
   exit 0
 fi
@@ -1263,7 +1263,7 @@ fi
 # -------------------------------
 if [[ "$1" == "uninstall" ]]; then
 
-  warn "This will remove ALL TitanCRM containers, stacks, networks and volumes!"
+  warn "This will remove ALL TitanTrack containers, stacks, networks and volumes!"
   read -p "Type 'uninstall' to confirm: " CONFIRM
 
   if [[ "$CONFIRM" != "uninstall" ]]; then
@@ -1271,7 +1271,7 @@ if [[ "$1" == "uninstall" ]]; then
   fi
 
   echo
-  info "Stopping and removing CRM stack..."
+  info "Stopping and removing TitanTrack stack..."
   docker compose --progress=tty -f crm.yaml -p crm down --volumes --remove-orphans || true
 
   echo
@@ -1283,11 +1283,11 @@ if [[ "$1" == "uninstall" ]]; then
   docker compose --progress=tty -f proxy.yaml -p proxy down --volumes --remove-orphans || true
 
   echo
-  info "Removing TitanCRM docker network..."
+  info "Removing TitanTrack docker network..."
   docker network rm titan-crm-network >/dev/null 2>&1 || true
 
   echo
-  info "Removing TitanCRM docker volumes..."
+  info "Removing TitanTrack docker volumes..."
   VOLUMES=(
     infra-company-management-db
     infra-content-db
@@ -1313,7 +1313,7 @@ if [[ "$1" == "uninstall" ]]; then
   rmdir "$(dirname "$MARKER_FILE")" 2>/dev/null || true
 
   echo
-  info "All TitanCRM stacks, volumes and network removed successfully"
+  info "All TitanTrack stacks, volumes and network removed successfully"
 
   exit 0
 fi
@@ -1324,20 +1324,20 @@ fi
 if [[ "$1" == "help" ]]; then
   echo "Available commands:"
   echo
-  echo "  crm-upgrade                 - Upgrade CRM stack"
-  echo "  crm-redeploy                - Redeploy CRM stack"
-  echo "  crm-stop                    - Stop CRM stack"
-  echo "  crm-start                   - Start CRM stack"
-  echo "  crm-tag-get                 - Show current CRM image tag"
-  echo "  crm-tag-set <tag> [--force] - Set a new CRM image tag (e.g. ./deploy.sh crm-tag-set stable-1.0.3). Use --force to override version checks"
-  echo "  uninstall                   - Uninstall all TitanCRM stacks, volumes and network"
+  echo "  crm-upgrade                 - Upgrade TitanTrack stack"
+  echo "  crm-redeploy                - Redeploy TitanTrack stack"
+  echo "  crm-stop                    - Stop TitanTrack stack"
+  echo "  crm-start                   - Start TitanTrack stack"
+  echo "  crm-tag-get                 - Show current TitanTrack image tag"
+  echo "  crm-tag-set <tag> [--force] - Set a new TitanTrack image tag (e.g. ./deploy.sh crm-tag-set stable-1.0.3). Use --force to override version checks"
+  echo "  uninstall                   - Uninstall all TitanTrack stacks, volumes and network"
   echo
   exit 0
 fi
 
 # =====[ MAIN ]=====
 if [[ -z "$1" ]]; then
-  info "🚀 Starting TitanCRM deployment..."
+  info "🚀 Starting TitanTrack deployment..."
   confirm_deploy
   deploy_start
 fi
@@ -1369,7 +1369,7 @@ save_credentials
 deploy_done
 
 echo
-info "TitanCRM is ready!"
+info "TitanTrack is ready!"
 exec 1>&3
 echo
 info "Services have started, but it may take a few minutes for:"
