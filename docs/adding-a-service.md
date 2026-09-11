@@ -1,6 +1,6 @@
-# Adding a New CRM Service
+# Adding a New Service
 
-When adding a new TitanCRM microservice to the deployer, update the following locations in `deploy.sh` and `crm.yaml`.
+When adding a new TitanTrack microservice to the deployer, update the following locations in `deploy.sh` and `crm.yaml`.
 
 ## 1. crm.yaml — add the service definition
 

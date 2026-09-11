@@ -45,17 +45,17 @@ Persistent data is stored in named Docker volumes: `infra-company-management-db`
 
 ## crm stack (`crm.yaml`)
 
-All TitanCRM application containers. Env vars are sourced from `.env` and from secrets generated into `crm.yaml` at deploy time. The `CRM_IMAGE_TAG` variable controls the image tag for all CRM services simultaneously.
+All TitanTrack application containers. Env vars are sourced from `.env` and from secrets generated into `crm.yaml` at deploy time. The `CRM_IMAGE_TAG` variable controls the image tag for all application services simultaneously.
 
 ## proxy stack (`proxy.yaml`)
 
-`nginx-proxy` (jwilder/nginx-proxy) + `letsencrypt-nginx-proxy-companion` automatically provision SSL certificates and configure routing based on `VIRTUAL_HOST` and `LETSENCRYPT_HOST` environment variables set on each CRM container.
+`nginx-proxy` (jwilder/nginx-proxy) + `letsencrypt-nginx-proxy-companion` automatically provision SSL certificates and configure routing based on `VIRTUAL_HOST` and `LETSENCRYPT_HOST` environment variables set on each application container.
 
 Persistent data: `proxy-html`, `proxy-certs`, `proxy-vhost` volumes.
 
 ## Deploy order
 
-Infra must be up and RabbitMQ healthy before CRM starts (services connect to RabbitMQ and DBs at startup). Proxy starts last — it only needs to reach containers via their `VIRTUAL_HOST` labels.
+Infra must be up and RabbitMQ healthy before the crm stack starts (services connect to RabbitMQ and DBs at startup). Proxy starts last — it only needs to reach containers via their `VIRTUAL_HOST` labels.
 
 ## Secrets
 
